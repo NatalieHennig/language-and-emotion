@@ -7,13 +7,23 @@ output: html_document:
   toc_float: true
   code_folding: hide
 ---
+# Setup
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-# Load the data
-```{r}
-load("/Users/nataliehennig/Documents/language-and-emotion/01_data/primary data/eye tracking data/joint_data_l2_trimmed.rda")
+## Define path
+```{r path}
+here::i_am("03_Rmd/Preprocessing.Rmd")
+library(here)
 ```
 
+## Load the data
+```{r main_data}
+load(here("01_data", "meco L2", "primary data","eye tracking data","joint_data_l2_trimmed.rda"))
+```
+
+# Preprocessing
+## Create table 
+1. Define the name 
