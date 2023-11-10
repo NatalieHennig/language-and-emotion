@@ -12,4 +12,8 @@ output: html_document:
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+# Load the Data
+```{r}
+load("/Users/nataliehennig/Documents/language-and-emotion/01_data/primary data/eye tracking data/joint_data_l2_trimmed.rda")
+```
 
