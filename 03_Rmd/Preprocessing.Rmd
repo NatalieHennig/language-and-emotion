@@ -19,6 +19,12 @@ here::i_am("03_Rmd/Preprocessing.Rmd")
 library(here)
 ```
 
+## Libraries
+```{r libraries}
+library(dplyr)
+```
+
+
 ## Load the data
 ```{r main_data}
 load(here("01_data", "meco L2", "primary data","eye tracking data","joint_data_l2_trimmed.rda"))
@@ -27,3 +33,6 @@ load(here("01_data", "meco L2", "primary data","eye tracking data","joint_data_l
 # Preprocessing
 ## Create table 
 1. Define the name 
+```{r}
+eye_table <- joint.data %>% select(uniform_id, subid, lang, itemid, ianum, ia, skip, nfix, refix, dur, firstrun.dur, firstrun.gopast, firstrun.gopast.sel)
+```
