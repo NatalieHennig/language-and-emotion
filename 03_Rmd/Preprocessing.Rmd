@@ -91,6 +91,8 @@ Some texts contain more words than indicated:
 - text 9 should be 115 (=-1)
 - text 12 should be 146 (=-2)
 
+A closer look at the text shows that some words were split up, such as anti-virus in text 5, which was counted as two tokens "anti-" and "virus". Since these words have individual measurements, they will be counted as separate words.
+
 ## Split tables according to text number
 
 
