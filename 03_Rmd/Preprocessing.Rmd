@@ -38,7 +38,16 @@ load(here("01_data", "meco L2", "primary data","eye tracking data","joint_data_l
 ## Create table
 
 1.  Define which columns are relevant. The relevant columns will be used to create a concise table for subsequent analysis.
-
+Note: Subid is not needed, because the leap-q files contain a uniform_id, which acts as a key. Only "ee.xlsx" does not have a uniform_id -> needs further preprocessing.
 ```{r}
-eye_table <- joint.data %>% select(uniform_id, subid, lang, itemid, ianum, ia, skip, nfix, refix, dur, firstrun.dur, firstrun.gopast, firstrun.gopast.sel)
+eye_table <- joint.data %>% select(uniform_id, lang, itemid, ianum, ia, skip, nfix, refix, dur, firstrun.dur, firstrun.gopast, firstrun.gopast.sel)
 ```
+
+2. Rename the columns for better understanding. 
+```{r}
+eye_table %>% rename("participant_id" = "uniform_id", "textnr" = "itemid", "tokenindex" = "ianum", "token"="ia")
+```
+## Split tables according to text number
+
+
+## Merge the leap-q xlsx files
