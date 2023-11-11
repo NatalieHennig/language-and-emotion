@@ -2,7 +2,8 @@
 title: "Preprocessing"
 author: "Natalie-Tieda Hennig"
 date: "2023-11-10"
-output: html_document:
+output: 
+  html_document:
   toc: true
   toc_float: true
   code_folding: hide
@@ -45,8 +46,16 @@ eye_table <- joint.data %>% select(uniform_id, lang, itemid, ianum, ia, skip, nf
 
 2. Rename the columns for better understanding. 
 ```{r}
-eye_table %>% rename("participant_id" = "uniform_id", "textnr" = "itemid", "tokenindex" = "ianum", "token"="ia")
+eye_table <- eye_table %>% rename("participant_id" = "uniform_id", "textnr" = "itemid", "tokenindex" = "ianum", "token"="ia") 
 ```
+
+## Sort by token index
+Such that the words in the article are ordered.
+```{r}
+eye_table <- eye_table %>% group_by(textnr, participant_id) %>% arrange(tokenindex, .by_group = TRUE)
+```
+
+
 ## Split tables according to text number
 
 
