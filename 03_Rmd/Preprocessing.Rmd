@@ -94,6 +94,26 @@ Some texts contain more words than indicated:
 A closer look at the text shows that some words were split up, such as anti-virus in text 5, which was counted as two tokens "anti-" and "virus". Since these words have individual measurements, they will be counted as separate words.
 
 ## Split tables according to text number
+```{r}
+text1 <- subset(eye_table, subset = textnr == "1")
+text2 <- subset(eye_table, subset = textnr == "2")
+text3 <- subset(eye_table, subset = textnr == "3")
+text4 <- subset(eye_table, subset = textnr == "4")
+text5 <- subset(eye_table, subset = textnr == "5")
+text6 <- subset(eye_table, subset = textnr == "6")
+text7 <- subset(eye_table, subset = textnr == "7")
+text8 <- subset(eye_table, subset = textnr == "8")
+text9 <- subset(eye_table, subset = textnr == "9")
+text10 <- subset(eye_table, subset = textnr == "10")
+text11 <- subset(eye_table, subset = textnr == "11")
+text12 <- subset(eye_table, subset = textnr == "12")
+```
+
+
+## Add valency scores to each text
+
+
+## Export data files
 
 
 ## Merge the leap-q xlsx files
