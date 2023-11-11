@@ -52,9 +52,44 @@ eye_table <- eye_table %>% rename("participant_id" = "uniform_id", "textnr" = "i
 ## Sort by token index
 Such that the words in the article are ordered.
 ```{r}
-eye_table <- eye_table %>% group_by(textnr, participant_id) %>% arrange(tokenindex, .by_group = TRUE)
+eye_table <- eye_table %>% group_by(textnr, participant_id) %>% arrange(tokenindex, .by_group = TRUE) %>% distinct()
 ```
 
+Count the number of words in each text to see if "ia" equals the token.
+```{r}
+textlength <- eye_table %>% group_by(textnr, participant_id) %>% summarise(length=n(), .groups = "drop")
+```
+
+> unique(textlength$length)
+ [1] 161 526 572 126 440 416 432 120 428 392 412 148 530 546 516  98 318 334 107 372 360 350 386 356 142 494 450 474 492 187 670 630 147 540 470 514 173 612 624 610 133 500 444 116
+[45] 404 382 402
+
+There are some duplicates in the dataset. For example, the participant "en_11" contains some rows multiple times which skews the textlength. These duplicates must be removed and seem to be an error in the original dataset "joint.data" from the MECO L2.
+
+After adding distinct() to the eye_table, the duplicates were removed.
+
+> x <- tibble(nr = textlength$textnr, tok = textlength$length) %>% distinct() %>% arrange(nr)
+
+# A tibble: 12 × 2
+   nr      tok
+   <chr> <int>
+ 1 1       161
+ 5 2        98
+ 6 3       107
+ 7 4       142
+ 8 5       187
+ 9 6       147
+10 7       173
+11 8       133
+12 9       116
+ 2 10      126
+ 3 11      120
+ 4 12      148
+ 
+Some texts contain more words than indicated: 
+- text 5 should be 185 (=-2)
+- text 9 should be 115 (=-1)
+- text 12 should be 146 (=-2)
 
 ## Split tables according to text number
 
