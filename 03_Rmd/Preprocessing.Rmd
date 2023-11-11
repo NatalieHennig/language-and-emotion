@@ -111,9 +111,11 @@ text12 <- subset(eye_table, subset = textnr == "12")
 
 
 ## Add valency scores to each text
-
+TODO: determine which valency score to use / compare different ones?
 
 ## Export data files
+TODO: determine table design
 
 
 ## Merge the leap-q xlsx files
+
