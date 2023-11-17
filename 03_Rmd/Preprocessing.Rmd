@@ -41,7 +41,7 @@ load(here("01_data", "meco L2", "primary data","eye tracking data","joint_data_l
 1.  Define which columns are relevant. The relevant columns will be used to create a concise table for subsequent analysis.
 Note: Subid is not needed, because the leap-q files contain a uniform_id, which acts as a key. Only "ee.xlsx" does not have a uniform_id -> needs further preprocessing.
 ```{r}
-eye_table <- joint.data %>% select(uniform_id, lang, itemid, ianum, ia, skip, nfix, refix, dur, firstrun.dur, firstrun.gopast, firstrun.gopast.sel)
+eye_table <- joint.data %>% select(uniform_id, lang, itemid, ianum, ia, skip, nfix, refix, dur, firstrun.dur, firstrun.gopast, firstrun.gopast.sel, firstfix.dur)
 ```
 
 2. Rename the columns for better understanding. 
@@ -112,6 +112,9 @@ text12 <- subset(eye_table, subset = textnr == "12")
 
 ## Add valency scores to each text
 TODO: determine which valency score to use / compare different ones?
+- ANEW
+- Computational method: e.g. VADER (https://www.jbe-platform.com/content/journals/10.1075/ssol.18002.jac)
+
 
 ## Export data files
 TODO: determine table design
