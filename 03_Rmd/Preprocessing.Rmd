@@ -16,20 +16,24 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 ## Define path
-
+- *here* shows the root file - no need to manually set the working directory, which increases reproducibility.
 ```{r path}
 here::i_am("03_Rmd/Preprocessing.Rmd")
 library(here)
 ```
 
 ## Libraries
-- dplyr: table manipulation
-- reticulate: interoperability between Python and R
+- *dplyr*: table manipulation
+- *reticulate*: interoperability between Python and R
 
 ```{r libraries}
 library(dplyr)
 library(reticulate)
+use_condaenv("thesis23")
 ```
+**Note** Created a conda environment within the language-and-emotion project file *./thesis23*.
+Installing packages using the following command (example nltk): *py_install("nltk", "./thesis23")*
+To list the downloaded packages use *py_list_packages()*
 
 ## Load the data
 
@@ -118,7 +122,8 @@ TODO: determine which valency score to use / compare different ones?
 - ANEW
 - Computational method: e.g. VADER (https://www.jbe-platform.com/content/journals/10.1075/ssol.18002.jac)
 ```{python}
-
+import nltk
+nltk.download('vader_lexicon')
 ```
 
 
