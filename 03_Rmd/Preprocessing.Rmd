@@ -23,9 +23,12 @@ library(here)
 ```
 
 ## Libraries
+- dplyr: table manipulation
+- reticulate: interoperability between Python and R
 
 ```{r libraries}
 library(dplyr)
+library(reticulate)
 ```
 
 ## Load the data
@@ -114,6 +117,9 @@ text12 <- subset(eye_table, subset = textnr == "12")
 TODO: determine which valency score to use / compare different ones?
 - ANEW
 - Computational method: e.g. VADER (https://www.jbe-platform.com/content/journals/10.1075/ssol.18002.jac)
+```{python}
+
+```
 
 
 ## Export data files
