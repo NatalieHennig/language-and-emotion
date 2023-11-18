@@ -138,7 +138,7 @@ There exist several valency scores.
 
 First, the columns *textnr*, *tokenindex*, and *token* for each text is extracted.
 ```{r export_text_column}
-
+unique1 <- text1 %>% ungroup() %>% select(textnr, tokenindex, token) %>% distinct()
 ```
 
 
