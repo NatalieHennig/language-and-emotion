@@ -167,9 +167,9 @@ df['polarity_score'] = [sentiments.polarity_scores(i)["compound"] for i in df["t
 score = df["polarity_score"].values
 sentiment = []
 for i in score:
-    if i >= 0.05 :
+    if i >= 0.02 :
         sentiment.append('Positive')
-    elif i <= -0.05 :
+    elif i <= -0.02 :
         sentiment.append('Negative')
     else:
         sentiment.append('Neutral')
@@ -183,14 +183,24 @@ df
 ```{python}
 df.to_csv("/Users/nataliehennig/Documents/language-and-emotion/05_output/text1_tokens_scores.csv")
 ```
-
-
+Problem: A brief glance at the assigned polarity scores shows that the texts are mostly neutral. This is due to the nature of the texts, i.e., the fact that encyclopedic style articles were chosen.
 
 ### Merge valency scores to main table
+```{r}
+read_csv = read.csv(here("05_output", "text1_tokens_scores.csv"))
+merger <- read_csv %>% select(tokenindex, token, polarity_score, sentiment)
+```
+
+```{r}
+total <- merge(text1, merger, by=c("tokenindex", "token")) %>% 
+  group_by(textnr, participant_id) %>% 
+  arrange(tokenindex, .by_group = TRUE)
+```
+
+# Prepare the leap-q xlsx files
 
 
 # Export data files
 TODO: determine table design
 
-# Merge the leap-q xlsx files
 
