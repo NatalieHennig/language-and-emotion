@@ -136,9 +136,11 @@ There exist several valency scores.
   - VADER 
   - SentiArt
 
-First, the columns *textnr*, *tokenindex*, and *token* for each text is extracted.
+First, the columns *textnr*, *tokenindex*, and *token* for each text is extracted. They serve as a key, so that they can be reassigned with the polarity scores to the main table.
 ```{r export_text_column}
 unique1 <- text1 %>% ungroup() %>% select(textnr, tokenindex, token) %>% distinct()
+
+write.csv(unique1, here("05_output", "text1_tokens.csv"))
 ```
 
 
@@ -150,8 +152,38 @@ from nltk.sentiment.vader import SentimentIntensityAnalyzer
 ```
 
 ```{python }
+import pandas as pd
+df = pd.read_csv("/Users/nataliehennig/Documents/language-and-emotion/05_output/text1_tokens.csv")
+```
+
+```{python}
+print(df.head)
+```
+
+```{python}
+sentiments = SentimentIntensityAnalyzer()
+df['polarity_score'] = [sentiments.polarity_scores(i)["compound"] for i in df["token"]]
+
+score = df["polarity_score"].values
+sentiment = []
+for i in score:
+    if i >= 0.05 :
+        sentiment.append('Positive')
+    elif i <= -0.05 :
+        sentiment.append('Negative')
+    else:
+        sentiment.append('Neutral')
+df["sentiment"] = sentiment
+
+#df.drop(df.columns[[4]], axis=1, inplace=True)
+
+df
 
 ```
+```{python}
+df.to_csv("/Users/nataliehennig/Documents/language-and-emotion/05_output/text1_tokens_scores.csv")
+```
+
 
 
 ### Merge valency scores to main table
