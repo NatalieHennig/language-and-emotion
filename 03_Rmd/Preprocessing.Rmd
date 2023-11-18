@@ -102,7 +102,7 @@ A closer look at the text shows that some words were split up, such as *anti-vir
 Since these words have individual measurements, they will be counted as separate words.
 
 #### Split tables according to text number
-```{r individual_texts}
+```{r individual_texts, eval=FALSE, include=FALSE}
 text1 <- subset(eye_table, subset = textnr == "1")
 text2 <- subset(eye_table, subset = textnr == "2")
 text3 <- subset(eye_table, subset = textnr == "3")
@@ -117,6 +117,15 @@ text11 <- subset(eye_table, subset = textnr == "11")
 text12 <- subset(eye_table, subset = textnr == "12")
 ```
 
+```{r split_text_by_nr}
+text_table <- function(nr){
+  return(subset(eye_table, subset = textnr == nr))
+}
+```
+
+```{r text_by_nr}
+text1 <- text_table(1)
+```
 
 ### Add valency scores to each text
 There exist several valency scores.
