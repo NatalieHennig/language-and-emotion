@@ -102,7 +102,7 @@ A closer look at the text shows that some words were split up, such as *anti-vir
 Since these words have individual measurements, they will be counted as separate words.
 
 #### Split tables according to text number
-```{r individual_texts, eval=FALSE}
+```{r individual_texts}
 text1 <- subset(eye_table, subset = textnr == "1")
 text2 <- subset(eye_table, subset = textnr == "2")
 text3 <- subset(eye_table, subset = textnr == "3")
@@ -119,18 +119,37 @@ text12 <- subset(eye_table, subset = textnr == "12")
 
 
 ### Add valency scores to each text
-TODO: determine which valency score to use / compare different ones?
-- ANEW
-- Computational method: e.g. VADER (https://www.jbe-platform.com/content/journals/10.1075/ssol.18002.jac)
-```{python}
+There exist several valency scores.
+
+- Human word ratings
+  - ANEW
+- Computational (https://doi.org/10.1075/ssol.18002.jac)
+  - VADER 
+  - SentiArt
+
+First, the columns *textnr*, *tokenindex*, and *token* for each text is extracted.
+```{r export_text_column}
+
+```
+
+
+#### VADER
+```{python import_VADER}
 import nltk
+from nltk.sentiment.vader import SentimentIntensityAnalyzer
 #nltk.download('vader_lexicon')
 ```
+
+```{python }
+
+```
+
+
+### Merge valency scores to main table
 
 
 # Export data files
 TODO: determine table design
-
 
 # Merge the leap-q xlsx files
 
