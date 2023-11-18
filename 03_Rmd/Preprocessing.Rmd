@@ -10,73 +10,72 @@ output:
 ---
 
 # Setup
-
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## Define path
+### Define path
 - *here* shows the root file - no need to manually set the working directory, which increases reproducibility.
 ```{r path}
 here::i_am("03_Rmd/Preprocessing.Rmd")
 library(here)
 ```
 
-## Libraries
+### Libraries
 - *dplyr*: table manipulation
 - *reticulate*: interoperability between Python and R
-
-```{r libraries}
+```{r libraries, results="hide", message=FALSE}
 library(dplyr)
 library(reticulate)
 use_condaenv("thesis23")
 ```
 **Note** Created a conda environment within the language-and-emotion project file *./thesis23*.
-Installing packages using the following command (example nltk): *py_install("nltk", "./thesis23")*
+Installing packages using the following command (example *nltk*): *py_install("nltk", "./thesis23")*
 To list the downloaded packages use *py_list_packages()*
 
-## Load the data
-
-```{r main_data}
+### Load the data
+```{r main_data, results="hide"}
 load(here("01_data", "meco L2", "primary data","eye tracking data","joint_data_l2_trimmed.rda"))
 ```
 
 # Preprocessing
-
-## Create table
-
+### Create table
 1.  Define which columns are relevant. The relevant columns will be used to create a concise table for subsequent analysis.
-Note: Subid is not needed, because the leap-q files contain a uniform_id, which acts as a key. Only "ee.xlsx" does not have a uniform_id -> needs further preprocessing.
-```{r}
+Note: *Subid* is not needed, because the leap-q files contain a *uniform_id*, which acts as a key. Only **ee.xlsx** does not have a *uniform_id* -> needs further preprocessing.
+```{r select_columns}
 eye_table <- joint.data %>% select(uniform_id, lang, itemid, ianum, ia, skip, nfix, refix, dur, firstrun.dur, firstrun.gopast, firstrun.gopast.sel, firstfix.dur)
 ```
 
 2. Rename the columns for better understanding. 
-```{r}
+```{r rename_columns}
 eye_table <- eye_table %>% rename("participant_id" = "uniform_id", "textnr" = "itemid", "tokenindex" = "ianum", "token"="ia") 
 ```
 
-## Sort by token index
-Such that the words in the article are ordered.
-```{r}
+#### Sort by token index
+Such that the words in the article are ordered. 
+```{r ordered_words}
 eye_table <- eye_table %>% group_by(textnr, participant_id) %>% arrange(tokenindex, .by_group = TRUE) %>% distinct()
 ```
 
+#### Ensure data quality
 Count the number of words in each text to see if "ia" equals the token.
-```{r}
+```{r quality_check_ia, eval=FALSE}
 textlength <- eye_table %>% group_by(textnr, participant_id) %>% summarise(length=n(), .groups = "drop")
 ```
 
-> unique(textlength$length)
- [1] 161 526 572 126 440 416 432 120 428 392 412 148 530 546 516  98 318 334 107 372 360 350 386 356 142 494 450 474 492 187 670 630 147 540 470 514 173 612 624 610 133 500 444 116
-[45] 404 382 402
+> ```unique(textlength$length)```
 
-There are some duplicates in the dataset. For example, the participant "en_11" contains some rows multiple times which skews the textlength. These duplicates must be removed and seem to be an error in the original dataset "joint.data" from the MECO L2.
+```
+[1] 161 526 572 126 440 416 432 120 428 392 412 148 530 546 516  98 318 334 107 372 360 350 386 356 142 494 450 474 492 187 670 630 147 540 470 514 173 612 624 610 133 500 444 116 404 382 402
+```
 
-After adding distinct() to the eye_table, the duplicates were removed.
+There are some duplicates in the dataset. For example, the participant *en_11* contains some rows multiple times which skews the numbers in *textlength*. 
+These duplicates must be removed and seem to be an error in the original dataset *joint.data* from the MECO L2.
+After adding *distinct()* to the *eye_table* in the chunk **ordered_words**, the duplicates were removed.
 
-> x <- tibble(nr = textlength$textnr, tok = textlength$length) %>% distinct() %>% arrange(nr)
+> ```x <- tibble(nr = textlength$textnr, tok = textlength$length) %>% distinct() %>% arrange(nr)```
 
+```
 # A tibble: 12 × 2
    nr      tok
    <chr> <int>
@@ -92,16 +91,18 @@ After adding distinct() to the eye_table, the duplicates were removed.
  2 10      126
  3 11      120
  4 12      148
- 
+```
 Some texts contain more words than indicated: 
+
 - text 5 should be 185 (=-2)
 - text 9 should be 115 (=-1)
 - text 12 should be 146 (=-2)
 
-A closer look at the text shows that some words were split up, such as anti-virus in text 5, which was counted as two tokens "anti-" and "virus". Since these words have individual measurements, they will be counted as separate words.
+A closer look at the text shows that some words were split up, such as *anti-virus* in text 5, which was counted as two tokens *anti-* and *virus*. 
+Since these words have individual measurements, they will be counted as separate words.
 
-## Split tables according to text number
-```{r}
+#### Split tables according to text number
+```{r individual_texts, eval=FALSE}
 text1 <- subset(eye_table, subset = textnr == "1")
 text2 <- subset(eye_table, subset = textnr == "2")
 text3 <- subset(eye_table, subset = textnr == "3")
@@ -117,19 +118,19 @@ text12 <- subset(eye_table, subset = textnr == "12")
 ```
 
 
-## Add valency scores to each text
+### Add valency scores to each text
 TODO: determine which valency score to use / compare different ones?
 - ANEW
 - Computational method: e.g. VADER (https://www.jbe-platform.com/content/journals/10.1075/ssol.18002.jac)
 ```{python}
 import nltk
-nltk.download('vader_lexicon')
+#nltk.download('vader_lexicon')
 ```
 
 
-## Export data files
+# Export data files
 TODO: determine table design
 
 
-## Merge the leap-q xlsx files
+# Merge the leap-q xlsx files
 
