@@ -153,22 +153,24 @@ for (nr in 1:text_outputs){
 *assign_polarity_scores* has positive and negative values as optional argument. The default is set to *0.02*/*-0.02*. Files are saved in 05_output as *nr_vader_scores.csv*.
 Problem: A brief glance at the assigned polarity scores shows that the texts are mostly neutral. This is due to the nature of the texts, i.e., the fact that encyclopedic style articles were chosen.
 
+#### ANEW
+
+
 ### Merge valency scores to main table
 ```{r}
-read_csv = read.csv(here("05_output", "text1_tokens_scores.csv"))
+read_csv = read.csv(here("05_output", "1_vader_scores.csv"))
 merger <- read_csv %>% select(tokenindex, token, polarity_score, sentiment)
-```
 
-```{r}
 total <- merge(text1, merger, by=c("tokenindex", "token")) %>% 
   group_by(textnr, participant_id) %>% 
   arrange(tokenindex, .by_group = TRUE)
 ```
 
+
 # Prepare the leap-q xlsx files
 
 
 # Export data files
-TODO: determine table design
+
 
 
