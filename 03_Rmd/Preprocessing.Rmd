@@ -133,6 +133,7 @@ There exist several valency scores.
   - SentiArt
 
 First, the columns *textnr*, *tokenindex*, and *token* for each text is extracted. They serve as a key, so that they can be reassigned with the polarity scores to the main table. The output is saved as a csv file.
+*distinct()* is used to get the full text only once, instead times the number of participants. It is currently set to *eval=FALSE* because it only needs to run once, to extract the csv files.
 ```{r export_text_column, eval=FALSE}
 text_outputs = 12
 for (nr in 1:text_outputs){
@@ -150,12 +151,10 @@ from nltk.sentiment.vader import SentimentIntensityAnalyzer
 
 ```{python }
 import pandas as pd
-df = pd.read_csv("/Users/nataliehennig/Documents/language-and-emotion/05_output/text1_tokens.csv")
+df = pd.read_csv("/Users/nataliehennig/Documents/language-and-emotion/05_output/1_text_tokens.csv")
+df
 ```
 
-```{python}
-print(df.head)
-```
 
 ```{python}
 # get polarity scores from VADER
