@@ -154,7 +154,10 @@ for (nr in 1:text_outputs){
 Problem: A brief glance at the assigned polarity scores shows that the texts are mostly neutral. This is due to the nature of the texts, i.e., the fact that encyclopedic style articles were chosen.
 
 #### ANEW
+```{r}
 
+```
+remove punctuation, lower-case
 
 ### Merge valency scores to main table
 ```{r}
