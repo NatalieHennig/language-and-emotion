@@ -102,21 +102,6 @@ A closer look at the text shows that some words were split up, such as *anti-vir
 Since these words have individual measurements, they will be counted as separate words.
 
 #### Split tables according to text number
-```{r individual_texts, eval=FALSE, include=FALSE}
-text1 <- subset(eye_table, subset = textnr == "1")
-text2 <- subset(eye_table, subset = textnr == "2")
-text3 <- subset(eye_table, subset = textnr == "3")
-text4 <- subset(eye_table, subset = textnr == "4")
-text5 <- subset(eye_table, subset = textnr == "5")
-text6 <- subset(eye_table, subset = textnr == "6")
-text7 <- subset(eye_table, subset = textnr == "7")
-text8 <- subset(eye_table, subset = textnr == "8")
-text9 <- subset(eye_table, subset = textnr == "9")
-text10 <- subset(eye_table, subset = textnr == "10")
-text11 <- subset(eye_table, subset = textnr == "11")
-text12 <- subset(eye_table, subset = textnr == "12")
-```
-
 ```{r split_text_by_nr}
 text_table <- function(nr){
   return(subset(eye_table, subset = textnr == nr))
@@ -125,6 +110,17 @@ text_table <- function(nr){
 
 ```{r text_by_nr}
 text1 <- text_table(1)
+text2 <- text_table(2)
+text3 <- text_table(3)
+text4 <- text_table(4)
+text5 <- text_table(5)
+text6 <- text_table(6)
+text7 <- text_table(7)
+text8 <- text_table(8)
+text9 <- text_table(9)
+text10 <- text_table(10)
+text11 <- text_table(11)
+text12 <- text_table(12)
 ```
 
 ### Add valency scores to each text
@@ -136,13 +132,14 @@ There exist several valency scores.
   - VADER 
   - SentiArt
 
-First, the columns *textnr*, *tokenindex*, and *token* for each text is extracted. They serve as a key, so that they can be reassigned with the polarity scores to the main table.
-```{r export_text_column}
-unique1 <- text1 %>% ungroup() %>% select(textnr, tokenindex, token) %>% distinct()
-
-write.csv(unique1, here("05_output", "text1_tokens.csv"))
+First, the columns *textnr*, *tokenindex*, and *token* for each text is extracted. They serve as a key, so that they can be reassigned with the polarity scores to the main table. The output is saved as a csv file.
+```{r export_text_column, eval=FALSE}
+text_outputs = 12
+for (nr in 1:text_outputs){
+  out <- get(paste0("text", nr)) %>% ungroup() %>% select(textnr, tokenindex, token) %>% distinct()
+  write.csv(out, here("05_output", paste0(nr, "_text_tokens.csv")))
+}
 ```
-
 
 #### VADER
 ```{python import_VADER}
@@ -161,24 +158,28 @@ print(df.head)
 ```
 
 ```{python}
+# get polarity scores from VADER
 sentiments = SentimentIntensityAnalyzer()
 df['polarity_score'] = [sentiments.polarity_scores(i)["compound"] for i in df["token"]]
 
+# assign categorical values to the polarity scores
 score = df["polarity_score"].values
 sentiment = []
+pos_threshold = 0.02
+neg_threshold = -0.02
+
 for i in score:
-    if i >= 0.02 :
+    if i >= pos_threshold:
         sentiment.append('Positive')
-    elif i <= -0.02 :
+    elif i <= neg_threshold:
         sentiment.append('Negative')
     else:
         sentiment.append('Neutral')
+        
 df["sentiment"] = sentiment
 
 #df.drop(df.columns[[4]], axis=1, inplace=True)
-
 df
-
 ```
 ```{python}
 df.to_csv("/Users/nataliehennig/Documents/language-and-emotion/05_output/text1_tokens_scores.csv")
