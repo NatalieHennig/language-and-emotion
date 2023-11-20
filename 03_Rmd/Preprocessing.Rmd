@@ -143,46 +143,14 @@ for (nr in 1:text_outputs){
 ```
 
 #### VADER
-```{python import_VADER}
-import nltk
-from nltk.sentiment.vader import SentimentIntensityAnalyzer
-#nltk.download('vader_lexicon')
+```{r call_vader}
+source_python(here("04_scripts", "01_vader.py"))
+
+for (nr in 1:text_outputs){
+  assign_polarity_score(nr)
+}
 ```
 
-```{python }
-import pandas as pd
-df = pd.read_csv("/Users/nataliehennig/Documents/language-and-emotion/05_output/1_text_tokens.csv")
-df
-```
-
-
-```{python}
-# get polarity scores from VADER
-sentiments = SentimentIntensityAnalyzer()
-df['polarity_score'] = [sentiments.polarity_scores(i)["compound"] for i in df["token"]]
-
-# assign categorical values to the polarity scores
-score = df["polarity_score"].values
-sentiment = []
-pos_threshold = 0.02
-neg_threshold = -0.02
-
-for i in score:
-    if i >= pos_threshold:
-        sentiment.append('Positive')
-    elif i <= neg_threshold:
-        sentiment.append('Negative')
-    else:
-        sentiment.append('Neutral')
-        
-df["sentiment"] = sentiment
-
-#df.drop(df.columns[[4]], axis=1, inplace=True)
-df
-```
-```{python}
-df.to_csv("/Users/nataliehennig/Documents/language-and-emotion/05_output/text1_tokens_scores.csv")
-```
 Problem: A brief glance at the assigned polarity scores shows that the texts are mostly neutral. This is due to the nature of the texts, i.e., the fact that encyclopedic style articles were chosen.
 
 ### Merge valency scores to main table
