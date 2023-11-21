@@ -27,6 +27,9 @@ library(here)
 ```{r libraries, results="hide", message=FALSE}
 library(dplyr)
 library(reticulate)
+library(quanteda)
+library(quanteda.sentiment)
+library(tidyr)
 use_condaenv("thesis23")
 ```
 **Note** Created a conda environment within the language-and-emotion project file *./thesis23*.
@@ -143,7 +146,7 @@ for (nr in 1:text_outputs){
 ```
 
 #### VADER
-```{r call_vader}
+```{r call_vader, eval=FALSE}
 source_python(here("04_scripts", "01_vader.py"))
 
 for (nr in 1:text_outputs){
@@ -155,9 +158,17 @@ Problem: A brief glance at the assigned polarity scores shows that the texts are
 
 #### ANEW
 ```{r}
+#lapply(valence(data_dictionary_ANEW), head)
+#pleasure <- valence(data_dictionary_ANEW)[["pleasure"]]
+
+text8$ANEW <- text8$token |> textstat_valence(dictionary = data_dictionary_ANEW["pleasure"]) 
+text8 <- unpack(text8, cols = c(ANEW)) 
+text8 = subset(select(text8, -c(doc_id)))
 
 ```
-remove punctuation, lower-case
+Words that are not in the dictionary are automatically assigned a value of 0.00 which needs to be taken into consideration.
+These words must be declared missing.
+
 
 ### Merge valency scores to main table
 ```{r}
