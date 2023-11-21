@@ -129,7 +129,7 @@ text12 <- text_table(12)
 ```
 
 ### Add valency scores to each text
-There exist several valency scores.
+There exist several valency scores. Hutto & Gilbert (2014) provide a rundown of currently used polarity and semantic intensity lexicons.
 
 - Human word ratings
   - ANEW
@@ -186,6 +186,12 @@ for (i in 1:12) {
 ```
 
 #### ANEW
+Valence ratings in which humans rated words with values for pleasure, dominance and arousal. 
+- Based on Bradley and Lang (1999): Relatively small dataset of 1034 words. 
+- Bradley and Lang (2009?): 2477 words.
+- The quanteda.sentiment ANEW dataset contains 2741 words.
+There exist several updated/extended versions, such as Warriner et al. (2013) word rating lexicon using Amazon Mechanical Turk, as well as an expansion technique, named ANEW+, as proposed by Shaikh et al. (2016).
+
 ```{r call_anew}
 source(here("04_scripts","02_anew.R"), local = knitr::knit_global())
 #lapply(valence(data_dictionary_ANEW), head)
@@ -210,6 +216,9 @@ for (text_name in texts_listed) {
   print(paste0(text_name, " - ", "ANEW: ", round(coverage_anew,0), "%, ", "VADER: ", round(coverage_vader,0), "%"))
 }
 ```
+
+#### SentiArt
+"Words with high and low AAP values (e.g. “nature” versus “criminal”) are more likely to induce positive and negative emotions, respectively, and words with AAP values approaching zero are considered to be more neutral (e.g. “bottle”). AAP has been validated as an accurate predictor of self-reported valence ratings of single words, and has been found to predict emotional states during story reading better than valence ratings from an affective word database (Jacobs & Kinder, 2019)" (Lei, Willems & Eekhof 2023: 999).
 
 # Additional Metrics
 - Word length
