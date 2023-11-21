@@ -1,4 +1,4 @@
-,Unnamed: 0,textnr,tokenindex,token,polarity_score,sentiment
+,Unnamed: 0,textnr,tokenindex,token,vader_score,vader_polarity
 0,1,6,1,Many,0.0,Neutral
 1,2,6,2,people,0.0,Neutral
 2,3,6,3,fail,-0.5423,Negative

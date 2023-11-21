@@ -1,4 +1,4 @@
-,Unnamed: 0,textnr,tokenindex,token,polarity_score,sentiment
+,Unnamed: 0,textnr,tokenindex,token,vader_score,vader_polarity
 0,1,8,1,Hibernation,0.0,Neutral
 1,2,8,2,in,0.0,Neutral
 2,3,8,3,animals,0.0,Neutral

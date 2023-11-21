@@ -24,6 +24,8 @@ library(here)
 ### Libraries
 - *dplyr*: table manipulation
 - *reticulate*: interoperability between Python and R
+- *quanteda* and *quanteda.sentiment*: statistical text operations, ANEW ratings
+- *tidyr* table manipulation
 ```{r libraries, results="hide", message=FALSE}
 library(dplyr)
 library(reticulate)
@@ -156,6 +158,43 @@ for (nr in 1:text_outputs){
 *assign_polarity_scores* has positive and negative values as optional argument. The default is set to *0.02*/*-0.02*. Files are saved in 05_output as *nr_vader_scores.csv*.
 Problem: A brief glance at the assigned polarity scores shows that the texts are mostly neutral. This is due to the nature of the texts, i.e., the fact that encyclopedic style articles were chosen.
 
+Attach the valency scores to the main tables.
+```{r merge_vader}
+#read_csv = read.csv(here("05_output", "1_vader_scores.csv"))
+#merger <- read_csv %>% select(tokenindex, token, vader_score, vader_polarity)
+
+#total <- merge(text1, merger, by=c("tokenindex", "token")) %>% 
+  #group_by(textnr, participant_id) %>% 
+  #arrange(tokenindex, .by_group = TRUE)
+
+
+# Loop through the files and read them into the list
+for (i in 1:12) { 
+  file_path <- here("05_output", paste0(i, "_vader_scores.csv"))
+  
+  # Check if the file exists before attempting to read it
+  if (file.exists(file_path)) {
+    vader_scores <- read.csv(file_path)
+    merger <- vader_scores %>% select(tokenindex, token, vader_score, vader_polarity)
+    
+    text_name <- paste0("text", i)
+    
+    # Merge the data frame with its corresponding VADER scores
+    text_df <- get(text_name)
+    text_df <- merge(text_df, merger, by = c("tokenindex", "token")) %>%
+      group_by(textnr, participant_id) %>%
+      arrange(tokenindex, .by_group = TRUE)
+    
+    # Update the original data frame
+    assign(text_name, text_df, envir = .GlobalEnv)
+  } else {
+    cat("File", file_path, "does not exist.\n")
+  }
+}
+
+
+```
+
 #### ANEW
 ```{r call_anew}
 source(here("04_scripts","02_anew.R"), local = knitr::knit_global())
@@ -172,22 +211,13 @@ for (text_name in texts_listed) {
 Words that are not in the dictionary are automatically assigned a value of 0.00 which needs to be taken into consideration.
 
 ```{r calculate coverage}
+print("Coverage")
+
 for (text_name in texts_listed) {
   text_in <- get(text_name)
-  coverage <- sum(text_in$sentiment != 0.00) / nrow(text_in) *100
-  print(paste0("Coverage for ", text_name, ": ", round(coverage,0), "%"))
+  coverage <- sum(text_in$anew_score != 0.00) / nrow(text_in) *100
+  print(paste0("ANEW ratings in ", text_name, ": ", round(coverage,0), "%"))
 }
-```
-
-
-### Merge valency scores to main table
-```{r}
-read_csv = read.csv(here("05_output", "1_vader_scores.csv"))
-merger <- read_csv %>% select(tokenindex, token, polarity_score, sentiment)
-
-total <- merge(text1, merger, by=c("tokenindex", "token")) %>% 
-  group_by(textnr, participant_id) %>% 
-  arrange(tokenindex, .by_group = TRUE)
 ```
 
 

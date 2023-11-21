@@ -1,4 +1,4 @@
-,Unnamed: 0,textnr,tokenindex,token,polarity_score,sentiment
+,Unnamed: 0,textnr,tokenindex,token,vader_score,vader_polarity
 0,1,7,1,A,0.0,Neutral
 1,2,7,2,bird's,0.0,Neutral
 2,3,7,3,feathers,0.0,Neutral

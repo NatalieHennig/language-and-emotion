@@ -1,4 +1,4 @@
-,Unnamed: 0,textnr,tokenindex,token,polarity_score,sentiment
+,Unnamed: 0,textnr,tokenindex,token,vader_score,vader_polarity
 0,1,12,1,Technology,0.0,Neutral
 1,2,12,2,is,0.0,Neutral
 2,3,12,3,rapidly,0.0,Neutral

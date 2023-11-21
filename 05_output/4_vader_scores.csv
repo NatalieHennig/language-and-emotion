@@ -1,4 +1,4 @@
-,Unnamed: 0,textnr,tokenindex,token,polarity_score,sentiment
+,Unnamed: 0,textnr,tokenindex,token,vader_score,vader_polarity
 0,1,4,1,Howard,0.0,Neutral
 1,2,4,2,Gardner,0.0,Neutral
 2,3,4,3,was,0.0,Neutral
