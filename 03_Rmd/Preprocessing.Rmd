@@ -158,12 +158,15 @@ Problem: A brief glance at the assigned polarity scores shows that the texts are
 
 #### ANEW
 ```{r}
+source(here("04_scripts","02_anew.R"), local = knitr::knit_global())
 #lapply(valence(data_dictionary_ANEW), head)
 #pleasure <- valence(data_dictionary_ANEW)[["pleasure"]]
 
-text8$ANEW <- text8$token |> textstat_valence(dictionary = data_dictionary_ANEW["pleasure"]) 
-text8 <- unpack(text8, cols = c(ANEW)) 
-text8 = subset(select(text8, -c(doc_id)))
+texts_listed <- list("text1", "text2", "text3", "text4", "text5", "text6", "text7", "text8", "text9", "text10", "text11", "text12")
+
+for (text_name in texts_listed) {
+  add_anew_score(text_name)
+}
 
 ```
 Words that are not in the dictionary are automatically assigned a value of 0.00 which needs to be taken into consideration.
