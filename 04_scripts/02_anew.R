@@ -11,5 +11,6 @@ add_anew_score <- function(text_name) {
   
   # Update the original data frame
   assign(text_name, text_in, envir = .GlobalEnv)
+  
 }
 

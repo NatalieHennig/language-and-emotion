@@ -157,7 +157,7 @@ for (nr in 1:text_outputs){
 Problem: A brief glance at the assigned polarity scores shows that the texts are mostly neutral. This is due to the nature of the texts, i.e., the fact that encyclopedic style articles were chosen.
 
 #### ANEW
-```{r}
+```{r call_anew}
 source(here("04_scripts","02_anew.R"), local = knitr::knit_global())
 #lapply(valence(data_dictionary_ANEW), head)
 #pleasure <- valence(data_dictionary_ANEW)[["pleasure"]]
@@ -170,7 +170,14 @@ for (text_name in texts_listed) {
 
 ```
 Words that are not in the dictionary are automatically assigned a value of 0.00 which needs to be taken into consideration.
-These words must be declared missing.
+
+```{r calculate coverage}
+for (text_name in texts_listed) {
+  text_in <- get(text_name)
+  coverage <- sum(text_in$sentiment != 0.00) / nrow(text_in) *100
+  print(paste0("Coverage for ", text_name, ": ", round(coverage,0), "%"))
+}
+```
 
 
 ### Merge valency scores to main table
