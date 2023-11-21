@@ -160,15 +160,7 @@ Problem: A brief glance at the assigned polarity scores shows that the texts are
 
 Attach the valency scores to the main tables.
 ```{r merge_vader}
-#read_csv = read.csv(here("05_output", "1_vader_scores.csv"))
-#merger <- read_csv %>% select(tokenindex, token, vader_score, vader_polarity)
 
-#total <- merge(text1, merger, by=c("tokenindex", "token")) %>% 
-  #group_by(textnr, participant_id) %>% 
-  #arrange(tokenindex, .by_group = TRUE)
-
-
-# Loop through the files and read them into the list
 for (i in 1:12) { 
   file_path <- here("05_output", paste0(i, "_vader_scores.csv"))
   
@@ -191,8 +183,6 @@ for (i in 1:12) {
     cat("File", file_path, "does not exist.\n")
   }
 }
-
-
 ```
 
 #### ANEW
@@ -215,10 +205,17 @@ print("Coverage")
 
 for (text_name in texts_listed) {
   text_in <- get(text_name)
-  coverage <- sum(text_in$anew_score != 0.00) / nrow(text_in) *100
-  print(paste0("ANEW ratings in ", text_name, ": ", round(coverage,0), "%"))
+  coverage_anew = sum(text_in$anew_score != 0.00) / nrow(text_in) *100
+  coverage_vader = sum(text_in$vader_score != 0.00) / nrow(text_in) *100
+  print(paste0(text_name, " - ", "ANEW: ", round(coverage_anew,0), "%, ", "VADER: ", round(coverage_vader,0), "%"))
 }
 ```
+
+# Additional Metrics
+- Word length
+- Word frequency
+- Levenshtein Distance?
+- Predictability in context?
 
 
 # Prepare the leap-q xlsx files
