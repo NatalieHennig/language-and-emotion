@@ -204,7 +204,7 @@ for (text_name in texts_listed) {
 }
 
 ```
-Words that are not in the dictionary are automatically assigned a value of 0.00 which needs to be taken into consideration.
+Words that are not in the dictionary are automatically assigned a value of 0.00 which needs to be taken into consideration. Therefore, POS-Tags need to be added to compute the coverage for only the content words.
 
 ```{r calculate coverage}
 print("Coverage")
@@ -218,7 +218,15 @@ for (text_name in texts_listed) {
 ```
 
 #### SentiArt
-"Words with high and low AAP values (e.g. “nature” versus “criminal”) are more likely to induce positive and negative emotions, respectively, and words with AAP values approaching zero are considered to be more neutral (e.g. “bottle”). AAP has been validated as an accurate predictor of self-reported valence ratings of single words, and has been found to predict emotional states during story reading better than valence ratings from an affective word database (Jacobs & Kinder, 2019)" (Lei, Willems & Eekhof 2023: 999).
+"Words with high and low AAP values (e.g. “nature” versus “criminal”) are more likely to induce positive and negative emotions, respectively, and words with AAP values approaching zero are considered to be more neutral (e.g. “bottle”). AAP has been validated as an accurate predictor of self-reported valence ratings of single words, and has been found to predict emotional states during story reading better than valence ratings from an affective word database" (Jacobs & Kinder, 2019)" (Lei, Willems & Eekhof 2023: 999).
+
+- Uses Vector Space Models instead of emotional dictionaries
+- High predictive accuracy
+- Pre-trained on the wiki.en corpus, particularly suitable for the texts under investigation
+- expandable to different languages
+
+"it was shown that the computational AAP values predicted ~2800 human database (subtlex). In a first cross-validation study, it was shown that the computational AAP values
+valence ratings from the BAWL better than the computational valence values, establishing the SDEWAC predicted ~2800 human valence ratings from the BAWL better than the computational valence values,VSM as the best-fitting of the three VSMs (R2 > 0.5, r = 0.72, p < 0.00012)." (Jacobs & Kinder 2019) 
 
 # Additional Metrics
 - Word length
