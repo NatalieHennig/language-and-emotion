@@ -229,11 +229,23 @@ for (text_name in texts_listed) {
 valence ratings from the BAWL better than the computational valence values, establishing the SDEWAC predicted ~2800 human valence ratings from the BAWL better than the computational valence values,VSM as the best-fitting of the three VSMs (R2 > 0.5, r = 0.72, p < 0.00012)." (Jacobs & Kinder 2019) 
 
 # Additional Metrics
+Lexical Features
+
 - Word length
 - Word frequency
+- POS
+- Punctuation (binary)
+- Distance to last word
 - Levenshtein Distance?
 - Predictability in context?
 
+Between-Group Features
+
+- Language Distance 
+
+Individual Features
+
+- AoA
 
 # Prepare the leap-q xlsx files
 
