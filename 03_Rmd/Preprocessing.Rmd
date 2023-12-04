@@ -32,6 +32,7 @@ library(reticulate)
 library(quanteda)
 library(quanteda.sentiment)
 library(tidyr)
+library(spacyr)
 use_condaenv("thesis23")
 ```
 **Note** Created a conda environment within the language-and-emotion project file *./thesis23*.
@@ -60,6 +61,18 @@ eye_table <- eye_table %>% rename("participant_id" = "uniform_id", "textnr" = "i
 Such that the words in the article are ordered. 
 ```{r ordered_words}
 eye_table <- eye_table %>% group_by(textnr, participant_id) %>% arrange(tokenindex, .by_group = TRUE) %>% distinct()
+```
+
+
+#### Add POS-Tags
+spacy_parse *(spaCy Version: 3.4.1, language model: en_core_web_sm)* is used to add POS tags to the words. It contains both a detailed set *tags*, as well as a less fine-grained universal set *pos*.
+The POS tags are based on the **Penn Treebank** tag set.
+```{r parsing, echo=TRUE, message=FALSE, results='hide'}
+spacy_install(envname = "/Users/nataliehennig/Documents/language-and-emotion/thesis23", python_version = "3.10")
+spacy_initialize(condaenv = "./thesis23")
+
+POS = spacy_parse(eye_table$token, tag=TRUE)
+TAG = POS$tag 
 ```
 
 #### Ensure data quality
