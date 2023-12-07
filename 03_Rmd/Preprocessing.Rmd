@@ -280,27 +280,26 @@ valence ratings from the BAWL better than the computational valence values, esta
 
 # Additional Metrics
 Lexical Features
-
 - Word length
 - Word frequency
-- POS
-- Punctuation (binary)
 - Distance to last word
 - Levenshtein Distance?
 - Predictability in context?
 
 Between-Group Features
-
 - Language Distance 
 
-Individual Features
-
+Participant Features
 - AoA
 
 # Prepare the leap-q xlsx files
 
 
 # Export data files
+```{r remove_dataframes}
+rm("merger", "POS", "texts_listed", "vader_scores", "joint.data", "text_df", "text_in")
+
+```
 
 
 
