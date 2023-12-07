@@ -112,6 +112,19 @@ eye_table$tag <- POS$tag
 ```
 
 
+#### Identify stopwords
+```{r stopwords}
+# Get English stopwords
+english_stopwords <- stopwords("en")
+
+# Identify stopwords in the 'tokens' column
+stopwords_in_tokens <- tolower(eye_table$token) %in% english_stopwords
+
+# Add a new column to indicate stopwords
+eye_table$is_stopword <- as.integer(stopwords_in_tokens)
+```
+
+
 #### Ensure data quality
 Count the number of words in each text to see if "ia" equals the token.
 ```{r quality_check_ia, eval=FALSE}
