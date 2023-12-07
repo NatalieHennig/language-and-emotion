@@ -25,7 +25,9 @@ library(here)
 - *dplyr*: table manipulation
 - *reticulate*: interoperability between Python and R
 - *quanteda* and *quanteda.sentiment*: statistical text operations, ANEW ratings
-- *tidyr* table manipulation
+- *tidyr*: table manipulation
+- *tm*: text mining - removing punctuation etc.
+- *stringr*: 
 ```{r libraries, results="hide", message=FALSE}
 library(dplyr)
 library(reticulate)
@@ -33,6 +35,8 @@ library(quanteda)
 library(quanteda.sentiment)
 library(tidyr)
 library(spacyr)
+library(tm)
+library(stringr)
 use_condaenv("thesis23")
 ```
 **Note** Created a conda environment within the language-and-emotion project file *./thesis23*.
@@ -63,16 +67,42 @@ Such that the words in the article are ordered.
 eye_table <- eye_table %>% group_by(textnr, participant_id) %>% arrange(tokenindex, .by_group = TRUE) %>% distinct()
 ```
 
+#### Remove punctuation
+Punctuation is removed and replaced by a binary column that indicates whether there was punctuation with a word or not - in the same way as Schneider (2023: 164).
+```{r}
+eye_table <- eye_table %>% mutate(punctuation = ifelse(str_detect(token, "[[:punct:]]"), 1, 0))
+eye_table$token = removePunctuation(eye_table$token) 
+```
+
 
 #### Add POS-Tags
 spacy_parse *(spaCy Version: 3.4.1, language model: en_core_web_sm)* is used to add POS tags to the words. It contains both a detailed set *tags*, as well as a less fine-grained universal set *pos*.
 The POS tags are based on the **Penn Treebank** tag set.
 ```{r parsing, echo=TRUE, message=FALSE, results='hide'}
 spacy_install(envname = "/Users/nataliehennig/Documents/language-and-emotion/thesis23", python_version = "3.10")
-spacy_initialize(condaenv = "./thesis23")
+spacy_initialize()
 
 POS = spacy_parse(eye_table$token, tag=TRUE)
-TAG = POS$tag 
+POS <- POS %>% select(token, pos, tag)
+
+POS <- semi_join(POS, eye_table, by = 'token')
+merged_data <- merge(eye_table, POS, by = 'token')
+
+write.csv(POS, here("05_output", "pos_tags.csv"))
+
+```
+For some reasons, after adding the POS with spacey, the dataset contained 657'993 rows instead of 656'000. After comparing the differences, it appeared that there were multiple empty rows that were labeled **PUNCT**. These rows were discarded.
+
+Code: 
+```
+> eye_table2 = eye_table
+> result <- semi_join(POS, eye_table2, by = 'token')
+> not_equal_rows <- anti_join(POS, result, by = 'token')
+```
+Output **not_equal_rows**:
+```
+token | pos   | tag
+“     | PUNCT | ``
 ```
 
 #### Ensure data quality
