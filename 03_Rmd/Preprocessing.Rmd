@@ -69,11 +69,14 @@ eye_table <- eye_table %>% group_by(textnr, participant_id) %>% arrange(tokenind
 
 #### Remove punctuation
 Punctuation is removed and replaced by a binary column that indicates whether there was punctuation with a word or not - in the same way as Schneider (2023: 164).
-```{r}
+```{r punctuation}
 eye_table <- eye_table %>% mutate(punctuation = ifelse(str_detect(token, "[[:punct:]]"), 1, 0))
 eye_table$token = removePunctuation(eye_table$token) 
 ```
 
+```{r token_length}
+eye_table$word_length = nchar(eye_table$token)
+```
 
 #### Add POS-Tags
 spacy_parse *(spaCy Version: 3.4.1, language model: en_core_web_sm)* is used to add POS tags to the words. It contains both a detailed set *tags*, as well as a less fine-grained universal set *pos*.The POS tags are based on the **Penn Treebank** tag set.
@@ -267,7 +270,7 @@ for (text_name in texts_listed) {
 }
 
 ```
-Words that are not in the dictionary are automatically assigned a value of 0.00 which needs to be taken into consideration. Therefore, POS-Tags need to be added to compute the coverage for only the content words.
+Words that are not in the dictionary are automatically assigned a value of 0.00 which needs to be taken into consideration. Therefore, POS-Tags need to be added to compute the coverage for only the content words. The column **is_stopword** removes function words and non-content words. It is used to calculate the coverage of content words by making sure that tokens in which the valency scores are above 0.00 and do not contain stopwords are calculated, and divided by the number of rows minus the number of rows that contain stopwords.
 
 ```{r calculate coverage}
 print("Coverage")
