@@ -274,8 +274,8 @@ print("Coverage")
 
 for (text_name in texts_listed) {
   text_in <- get(text_name)
-  coverage_anew = sum(text_in$anew_score != 0.00) / nrow(text_in) *100
-  coverage_vader = sum(text_in$vader_score != 0.00) / nrow(text_in) *100
+  coverage_anew = sum(text_in$anew_score != 0.00 & text_in$is_stopword != 1) / (nrow(text_in) - sum(text_in$is_stopword == 1)) *100
+  coverage_vader = sum(text_in$vader_score != 0.00 & text_in$is_stopword != 1) / (nrow(text_in) - sum(text_in$is_stopword == 1)) *100
   print(paste0(text_name, " - ", "ANEW: ", round(coverage_anew,0), "%, ", "VADER: ", round(coverage_vader,0), "%"))
 }
 ```
@@ -310,7 +310,7 @@ Participant Features
 
 # Export data files
 ```{r remove_dataframes}
-rm("merger", "POS", "texts_listed", "vader_scores", "joint.data", "text_df", "text_in")
+#rm("merger", "POS", "texts_listed", "vader_scores", "joint.data", "text_df", "text_in")
 
 ```
 
