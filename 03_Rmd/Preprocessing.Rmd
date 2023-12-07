@@ -27,7 +27,8 @@ library(here)
 - *quanteda* and *quanteda.sentiment*: statistical text operations, ANEW ratings
 - *tidyr*: table manipulation
 - *tm*: text mining - removing punctuation etc.
-- *stringr*: 
+- *stringr*: to manipulate strings
+- *readxl*: to read excel files
 ```{r libraries, results="hide", message=FALSE}
 library(dplyr)
 library(reticulate)
@@ -37,6 +38,7 @@ library(tidyr)
 library(spacyr)
 library(tm)
 library(stringr)
+library(readxl)
 use_condaenv("thesis23")
 ```
 **Note** Created a conda environment within the language-and-emotion project file *./thesis23*.
@@ -74,6 +76,7 @@ eye_table <- eye_table %>% mutate(punctuation = ifelse(str_detect(token, "[[:pun
 eye_table$token = removePunctuation(eye_table$token) 
 ```
 
+The word length is calculated by the number of characters.
 ```{r token_length}
 eye_table$word_length = nchar(eye_table$token)
 ```
@@ -270,18 +273,6 @@ for (text_name in texts_listed) {
 }
 
 ```
-Words that are not in the dictionary are automatically assigned a value of 0.00 which needs to be taken into consideration. Therefore, POS-Tags need to be added to compute the coverage for only the content words. The column **is_stopword** removes function words and non-content words. It is used to calculate the coverage of content words by making sure that tokens in which the valency scores are above 0.00 and do not contain stopwords are calculated, and divided by the number of rows minus the number of rows that contain stopwords.
-
-```{r calculate coverage}
-print("Coverage")
-
-for (text_name in texts_listed) {
-  text_in <- get(text_name)
-  coverage_anew = sum(text_in$anew_score != 0.00 & text_in$is_stopword != 1) / (nrow(text_in) - sum(text_in$is_stopword == 1)) *100
-  coverage_vader = sum(text_in$vader_score != 0.00 & text_in$is_stopword != 1) / (nrow(text_in) - sum(text_in$is_stopword == 1)) *100
-  print(paste0(text_name, " - ", "ANEW: ", round(coverage_anew,0), "%, ", "VADER: ", round(coverage_vader,0), "%"))
-}
-```
 
 #### SentiArt
 "Words with high and low AAP values (e.g. “nature” versus “criminal”) are more likely to induce positive and negative emotions, respectively, and words with AAP values approaching zero are considered to be more neutral (e.g. “bottle”). AAP has been validated as an accurate predictor of self-reported valence ratings of single words, and has been found to predict emotional states during story reading better than valence ratings from an affective word database" (Jacobs & Kinder, 2019)" (Lei, Willems & Eekhof 2023: 999).
@@ -294,9 +285,33 @@ for (text_name in texts_listed) {
 "it was shown that the computational AAP values predicted ~2800 human database (subtlex). In a first cross-validation study, it was shown that the computational AAP values
 valence ratings from the BAWL better than the computational valence values, establishing the SDEWAC predicted ~2800 human valence ratings from the BAWL better than the computational valence values,VSM as the best-fitting of the three VSMs (R2 > 0.5, r = 0.72, p < 0.00012)." (Jacobs & Kinder 2019) 
 
+```{r add_AAP}
+senti_scores <- read_xlsx(here("01_data", "250kSentiArt_EN.xlsx"))
+senti_scores <- senti_scores %>% select("word", "AAPz")
+
+for (text_name in texts_listed) {
+  assign(text_name, left_join(get(text_name), senti_scores, by = c("token" = "word")) %>% mutate(AAPz = ifelse(is.na(AAPz), 0, AAPz)))
+}
+
+```
+
+#### Valency score coverage
+Words that are not in the dictionary are automatically assigned a value of 0.00 which needs to be taken into consideration. Therefore, POS-Tags need to be added to compute the coverage for only the content words. The column **is_stopword** removes function words and non-content words. It is used to calculate the coverage of content words by making sure that tokens in which the valency scores are above 0.00 and do not contain stopwords are calculated, and divided by the number of rows minus the number of rows that contain stopwords.
+
+```{r calculate coverage}
+print("Coverage")
+
+for (text_name in texts_listed) {
+  text_in <- get(text_name)
+  coverage_anew = sum(text_in$anew_score != 0.00 & text_in$is_stopword != 1) / (nrow(text_in) - sum(text_in$is_stopword == 1)) *100
+  coverage_vader = sum(text_in$vader_score != 0.00 & text_in$is_stopword != 1) / (nrow(text_in) - sum(text_in$is_stopword == 1)) *100
+  coverage_sentiart = sum(text_in$AAPz != 0.00 & text_in$is_stopword != 1) / (nrow(text_in) - sum(text_in$is_stopword == 1)) *100
+  print(paste0(text_name, " - ", "ANEW: ", round(coverage_anew,0), "%, ", "VADER: ", round(coverage_vader,0), "%, ", "AAP: ", round(coverage_sentiart,0), "%"))
+}
+```
+
 # Additional Metrics
 Lexical Features
-- Word length
 - Word frequency
 - Distance to last word
 - Levenshtein Distance?
@@ -312,9 +327,9 @@ Participant Features
 
 
 # Export data files
+
 ```{r remove_dataframes}
 #rm("merger", "POS", "texts_listed", "vader_scores", "joint.data", "text_df", "text_in")
-
 ```
 
 
