@@ -76,9 +76,8 @@ eye_table$token = removePunctuation(eye_table$token)
 
 
 #### Add POS-Tags
-spacy_parse *(spaCy Version: 3.4.1, language model: en_core_web_sm)* is used to add POS tags to the words. It contains both a detailed set *tags*, as well as a less fine-grained universal set *pos*.
-The POS tags are based on the **Penn Treebank** tag set.
-```{r parsing, echo=TRUE, message=FALSE, results='hide'}
+spacy_parse *(spaCy Version: 3.4.1, language model: en_core_web_sm)* is used to add POS tags to the words. It contains both a detailed set *tags*, as well as a less fine-grained universal set *pos*.The POS tags are based on the **Penn Treebank** tag set.
+```{r parsing, eval=FALSE, message=FALSE, include=FALSE, results='hide'}
 spacy_install(envname = "/Users/nataliehennig/Documents/language-and-emotion/thesis23", python_version = "3.10")
 spacy_initialize()
 
@@ -86,11 +85,11 @@ POS = spacy_parse(eye_table$token, tag=TRUE)
 POS <- POS %>% select(token, pos, tag)
 
 POS <- semi_join(POS, eye_table, by = 'token')
-merged_data <- merge(eye_table, POS, by = 'token')
-
 write.csv(POS, here("05_output", "pos_tags.csv"))
 
+#merged_data <- merge(eye_table, x, by = 'token')
 ```
+
 For some reasons, after adding the POS with spacey, the dataset contained 657'993 rows instead of 656'000. After comparing the differences, it appeared that there were multiple empty rows that were labeled **PUNCT**. These rows were discarded.
 
 Code: 
@@ -104,6 +103,14 @@ Output **not_equal_rows**:
 token | pos   | tag
 “     | PUNCT | ``
 ```
+
+```{r add_pos_to_main}
+POS <- read.csv(here("05_output", "pos_tags.csv"))
+
+eye_table$pos <- POS$pos
+eye_table$tag <- POS$tag
+```
+
 
 #### Ensure data quality
 Count the number of words in each text to see if "ia" equals the token.
