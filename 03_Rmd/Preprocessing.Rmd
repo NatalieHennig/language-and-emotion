@@ -16,6 +16,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ### Define path
 - *here* shows the root file - no need to manually set the working directory, which increases reproducibility.
+
 ```{r path}
 here::i_am("03_Rmd/Preprocessing.Rmd")
 library(here)
@@ -29,6 +30,7 @@ library(here)
 - *tm*: text mining - removing punctuation etc.
 - *stringr*: to manipulate strings
 - *readxl*: to read excel files
+
 ```{r libraries, results="hide", message=FALSE}
 library(dplyr)
 library(reticulate)
@@ -39,6 +41,7 @@ library(spacyr)
 library(tm)
 library(stringr)
 library(readxl)
+library(readr)
 use_condaenv("thesis23")
 ```
 **Note** Created a conda environment within the language-and-emotion project file *./thesis23*.
@@ -69,13 +72,15 @@ Such that the words in the article are ordered.
 eye_table <- eye_table %>% group_by(textnr, participant_id) %>% arrange(tokenindex, .by_group = TRUE) %>% distinct()
 ```
 
-#### Remove punctuation
+#### Punctuation
 Punctuation is removed and replaced by a binary column that indicates whether there was punctuation with a word or not - in the same way as Schneider (2023: 164).
 ```{r punctuation}
 eye_table <- eye_table %>% mutate(punctuation = ifelse(str_detect(token, "[[:punct:]]"), 1, 0))
 eye_table$token = removePunctuation(eye_table$token) 
 ```
 
+
+#### Word Length
 The word length is calculated by the number of characters.
 ```{r token_length}
 eye_table$word_length = nchar(eye_table$token)
@@ -84,11 +89,11 @@ eye_table$word_length = nchar(eye_table$token)
 #### Add POS-Tags
 spacy_parse *(spaCy Version: 3.4.1, language model: en_core_web_sm)* is used to add POS tags to the words. It contains both a detailed set *tags*, as well as a less fine-grained universal set *pos*.The POS tags are based on the **Penn Treebank** tag set.
 ```{r parsing, eval=FALSE, message=FALSE, include=FALSE, results='hide'}
-spacy_install(envname = "/Users/nataliehennig/Documents/language-and-emotion/thesis23", python_version = "3.10")
+spacy_install(envname = "./thesis23/bin/python", python_version = "3.10")
 spacy_initialize()
 
 POS = spacy_parse(eye_table$token, tag=TRUE)
-POS <- POS %>% select(token, pos, tag)
+POS <- POS %>% select(token, pos, tag, lemma)
 
 POS <- semi_join(POS, eye_table, by = 'token')
 write.csv(POS, here("05_output", "pos_tags.csv"))
@@ -115,6 +120,43 @@ POS <- read.csv(here("05_output", "pos_tags.csv"))
 
 eye_table$pos <- POS$pos
 eye_table$tag <- POS$tag
+eye_table$lemma <- POS$lemma
+```
+
+#### Word Frequency
+Frequencies are from the BNC.
+```{r get_frequency}
+column_names <- c("sort-order", "frequency", "word", "word-class")
+frequency_df <- read_delim(here("01_data", "lemma.al.txt"), delim = " ", col_names = column_names)
+```
+
+conj (conjunction)            34 items
+	adv  (adverb)                427
+	v    (verb)                 1281
+	det  (determiner)             47
+	pron (pronoun)                46
+	interjection                  13
+	a    (adjective)            1124
+	n    (noun)                 3262
+	prep (preposition)            71
+	modal                         12
+	infinitive-marker              1
+	
+```{r}
+# TODO: Map pos from BNC frequency to POS in eye_data
+# TODO: Group lemma & pos and word to get frequencies because some words occur multiple times but contain different word classes
+```
+example: 
+3341 2139 above a
+942 10719 above adv
+786 12889 above prep
+
+```{r add_frequency}
+frequency_df <- frequency_df %>% select("word", "frequency", "word-class")
+
+#eye_table <- left_join(eye_table, frequency_df, by = c("lemma" = "word")) 
+result <- left_join(eye_table, frequency_df, by = c("lemma" = "word")) %>%
+  mutate(frequency = replace(frequency, is.na(frequency), 0))
 ```
 
 
@@ -309,19 +351,6 @@ for (text_name in texts_listed) {
   print(paste0(text_name, " - ", "ANEW: ", round(coverage_anew,0), "%, ", "VADER: ", round(coverage_vader,0), "%, ", "AAP: ", round(coverage_sentiart,0), "%"))
 }
 ```
-
-# Additional Metrics
-Lexical Features
-- Word frequency
-- Distance to last word
-- Levenshtein Distance?
-- Predictability in context?
-
-Between-Group Features
-- Language Distance 
-
-Participant Features
-- AoA
 
 # Prepare the leap-q xlsx files
 
