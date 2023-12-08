@@ -130,7 +130,7 @@ column_names <- c("sort-order", "frequency", "word", "word-class")
 frequency_df <- read_delim(here("01_data", "lemma.al.txt"), delim = " ", col_names = column_names)
 ```
 
-conj (conjunction)            34 items
+conj (conjunction)            34 
 	adv  (adverb)                427
 	v    (verb)                 1281
 	det  (determiner)             47
@@ -142,20 +142,45 @@ conj (conjunction)            34 items
 	modal                         12
 	infinitive-marker              1
 	
-```{r}
-# TODO: Map pos from BNC frequency to POS in eye_data
-# TODO: Group lemma & pos and word to get frequencies because some words occur multiple times but contain different word classes
+```{r map_pos}
+# Function to map specific word classes to pos tags
+map_to_tags <- function(word_class) {
+  case_mapping <- c(
+    "conj"              = "CCONJ",
+    "adv"               = "ADV",
+    "v"                 = "VERB",
+    "det"               = "DET",
+    "pron"              = "PRON",
+    "interjection"      = "INTJ",
+    "a"                 = "ADJ",
+    "n"                 = "NOUN",
+    "prep"              = "ADP",
+    "modal"             = "AUX",
+    "infinitive-marker" = "SCONJ"
+  )
+
+  return(case_mapping[word_class])
+}
+
+# Apply the mapping function and create a new column
+frequency_df <- frequency_df %>% mutate(pos_map = map_to_tags(`word-class`))
 ```
+
+Lemma & pos and word-class + pos_map were group to get frequencies because some words occur multiple times but contain different word classes.
+
 example: 
 3341 2139 above a
 942 10719 above adv
 786 12889 above prep
 
-```{r add_frequency}
-frequency_df <- frequency_df %>% select("word", "frequency", "word-class")
+*Note* Curiously, spacey tags determiners as DT with a pos of PRON, which leads to a null value in the frequency cell because in *frequency_df*, determiners are mapped to determiners. 
+# TODO Investigate if there are other such cases.
 
-#eye_table <- left_join(eye_table, frequency_df, by = c("lemma" = "word")) 
-result <- left_join(eye_table, frequency_df, by = c("lemma" = "word")) %>%
+```{r add_frequency}
+frequency_df <- frequency_df %>% select("word", "frequency", "pos_map")
+
+eye_table <- eye_table %>% mutate(lemma = tolower(lemma))
+eye_table <- left_join(eye_table, frequency_df, by = c("lemma" = "word", "pos" = "pos_map")) %>%
   mutate(frequency = replace(frequency, is.na(frequency), 0))
 ```
 
