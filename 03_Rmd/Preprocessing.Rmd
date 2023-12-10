@@ -176,6 +176,14 @@ example:
 *Note* Curiously, spacey tags determiners as DT with a pos of PRON, which leads to a null value in the frequency cell because in *frequency_df*, determiners are mapped to determiners. 
 # TODO Investigate if there are other such cases.
 
+```{r}
+unidentified_lemmas <- unique(eye_table$lemma[which(eye_table$frequency == 0)])
+not_matched <- subset(frequency_df, word %in% unidentified_lemmas)
+
+print(not_matched)
+```
+
+
 ```{r add_frequency}
 frequency_df <- frequency_df %>% select("word", "frequency", "pos_map")
 
@@ -378,7 +386,6 @@ for (text_name in texts_listed) {
 
 
 # Export data files
-
 ```{r remove_dataframes}
 rm("merger", "POS", "texts_listed", "vader_scores", "joint.data", "text_df", "text_in", "senti_scores")
 ```
