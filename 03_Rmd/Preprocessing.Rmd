@@ -173,6 +173,14 @@ example:
 942 10719 above adv
 786 12889 above prep
 
+```{r add_frequency}
+frequency_df <- frequency_df %>% select("word", "frequency", "pos_map")
+
+eye_table <- eye_table %>% mutate(lemma = tolower(lemma))
+eye_table <- left_join(eye_table, frequency_df, by = c("lemma" = "word", "pos" = "pos_map")) %>%
+  mutate(frequency = replace(frequency, is.na(frequency), 0))
+```
+
 *Note* Curiously, spacey tags determiners as DT with a pos of PRON, which leads to a null value in the frequency cell because in *frequency_df*, determiners are mapped to determiners. 
 Investigate if there are other such cases. -> there are, the respective cases are extracted below. There are some cases, where there are different pos tags and some, where there are multiple entries with different pos tags. For the second case, the frequency will be extracted manually.
 
@@ -254,14 +262,17 @@ modified_merged_table$frequency <- ifelse(!is.na(modified_merged_table$frequency
 modified_merged_table <- select(modified_merged_table, -c(frequency.x, frequency.y))
 print(modified_merged_table)
 ```
+```{r}
+# Merge modified_merged_table with eye_table based on "word" = "lemma"
+eye_table <- left_join(eye_table, modified_merged_table %>% select(word, frequency), by = c("lemma" = "word"))
 
-```{r add_frequency}
-frequency_df <- frequency_df %>% select("word", "frequency", "pos_map")
+# Replace the original frequency column with the merged frequency values
+eye_table$frequency <- ifelse(!is.na(eye_table$frequency.y), eye_table$frequency.y, eye_table$frequency.x)
 
-eye_table <- eye_table %>% mutate(lemma = tolower(lemma))
-eye_table <- left_join(eye_table, frequency_df, by = c("lemma" = "word", "pos" = "pos_map")) %>%
-  mutate(frequency = replace(frequency, is.na(frequency), 0))
+# Remove the unnecessary frequency columns
+eye_table <- select(eye_table, -c(frequency.x, frequency.y))
 ```
+
 
 #### Identify stopwords
 ```{r stopwords}
