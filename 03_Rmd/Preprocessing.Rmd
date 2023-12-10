@@ -174,15 +174,64 @@ example:
 786 12889 above prep
 
 *Note* Curiously, spacey tags determiners as DT with a pos of PRON, which leads to a null value in the frequency cell because in *frequency_df*, determiners are mapped to determiners. 
-# TODO Investigate if there are other such cases.
+Investigate if there are other such cases. -> there are
 
 ```{r}
 unidentified_lemmas <- unique(eye_table$lemma[which(eye_table$frequency == 0)])
-not_matched <- subset(frequency_df, word %in% unidentified_lemmas)
+not_matched <- subset(frequency_df, frequency_df$word %in% unidentified_lemmas)
 
 print(not_matched)
 ```
 
+
+```{r}
+# Create a subset of eye_table with the desired condition
+subset_eye_table <- subset(eye_table, frequency == 0)
+
+# Get unique combinations of lemma and pos
+unique_lemmas_pos <- unique(subset_eye_table[, c("lemma", "pos")])
+
+# Keep only rows where "lemma" occurs in the "word" column of not_matched
+filtered_unique_lemma_pos <- unique_lemmas_pos[unique_lemmas_pos$lemma %in% not_matched$word, ]
+
+ordered_filtered_unique_lemma_pos <- filtered_unique_lemma_pos[order(filtered_unique_lemma_pos$lemma), ]
+```
+
+```{r}
+# Assuming not_matched is obtained as described before
+
+# Identify unique entries in the "word" column
+unique_words <- not_matched$word[!duplicated(not_matched$word) & !duplicated(not_matched$word, fromLast = TRUE)]
+
+# Create a new dataframe with rows where "word" is unique
+unique_not_matched <- not_matched[not_matched$word %in% unique_words, ]
+
+# Print or use the unique_not_matched dataframe as needed
+print(unique_not_matched)
+
+```
+```{r}
+# Perform anti-join based on the "word" and "lemma" columns
+result <- anti_join(ordered_filtered_unique_lemma_pos, unique_not_matched, by = c("lemma" = "word"))
+```
+Must be manually mapped:
+
+all	PRON			
+both	PRON			
+fast	VERB			
+kind	VERB			
+like	INTJ			
+most	ADJ			
+neither	CCONJ			
+own	ADJ			
+that	PRON			
+this	PRON
+though	SCONJ			
+to	PART			
+when	SCONJ			
+where	SCONJ			
+while	SCONJ			
+worth	ADJ
 
 ```{r add_frequency}
 frequency_df <- frequency_df %>% select("word", "frequency", "pos_map")
