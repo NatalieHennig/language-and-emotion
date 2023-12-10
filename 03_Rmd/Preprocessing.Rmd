@@ -182,17 +182,15 @@ eye_table <- left_join(eye_table, frequency_df, by = c("lemma" = "word", "pos" =
 ```
 
 *Note* Curiously, spacey tags determiners as DT with a pos of PRON, which leads to a null value in the frequency cell because in *frequency_df*, determiners are mapped to determiners. 
-Investigate if there are other such cases. -> there are, the respective cases are extracted below. There are some cases, where there are different pos tags and some, where there are multiple entries with different pos tags. For the second case, the frequency will be extracted manually.
+Investigate if there are other such cases. -> there are, the respective cases are extracted below. There are some cases, where pos tags from the frequency table diverge from the ones in the main table (*case 1*) and some instances, where there exist multiple entries with different pos tags (*case 2*). For the second case, the frequency will be extracted manually.
 
-```{r}
+```{r get_all_unique_missing_frequencies}
 unidentified_lemmas <- unique(eye_table$lemma[which(eye_table$frequency == 0)])
 not_matched <- subset(frequency_df, frequency_df$word %in% unidentified_lemmas)
-
-print(not_matched)
+#print(not_matched)
 ```
 
-```{r}
-# Create a subset of eye_table with the desired condition
+```{r get_existing_missing_frequencies}
 subset_eye_table <- subset(eye_table, frequency == 0)
 # Get unique combinations of lemma and pos
 unique_lemmas_pos <- unique(subset_eye_table[, c("lemma", "pos")])
@@ -202,14 +200,14 @@ filtered_unique_lemma_pos <- unique_lemmas_pos[unique_lemmas_pos$lemma %in% not_
 ordered_filtered_unique_lemma_pos <- filtered_unique_lemma_pos[order(filtered_unique_lemma_pos$lemma), ]
 ```
 
-```{r}
+```{r get_case_1_frequencies}
 # Identify unique entries in the "word" column
 unique_words <- not_matched$word[!duplicated(not_matched$word) & !duplicated(not_matched$word, fromLast = TRUE)]
 # Create a new dataframe with rows where "word" is unique
 unique_not_matched <- not_matched[not_matched$word %in% unique_words, ]
 ```
 
-```{r}
+```{r combine_missing_freq_cases}
 # Perform anti-join based on the "word" and "lemma" columns
 result <- anti_join(ordered_filtered_unique_lemma_pos, unique_not_matched, by = c("lemma" = "word"))
 # Add a new column "frequency" with values 0 to the result dataframe
@@ -247,7 +245,7 @@ where	SCONJ	44496
 while	SCONJ	50548		
 worth	ADJ 9183
 
-```{r}
+```{r manually_input_frequencies}
 # Define a data frame with the specified frequencies for certain words
 custom_frequencies <- data.frame(
   word = c("all", "both", "fast", "kind", "like", "most", "neither", "own", "that", "this", "though", "to", "when", "where", "while", "worth"),
@@ -262,7 +260,8 @@ modified_merged_table$frequency <- ifelse(!is.na(modified_merged_table$frequency
 modified_merged_table <- select(modified_merged_table, -c(frequency.x, frequency.y))
 print(modified_merged_table)
 ```
-```{r}
+
+```{r merge_manual_frequencies_to_main}
 # Merge modified_merged_table with eye_table based on "word" = "lemma"
 eye_table <- left_join(eye_table, modified_merged_table %>% select(word, frequency), by = c("lemma" = "word"))
 
@@ -273,6 +272,9 @@ eye_table$frequency <- ifelse(!is.na(eye_table$frequency.y), eye_table$frequency
 eye_table <- select(eye_table, -c(frequency.x, frequency.y))
 ```
 
+```{r remove_freq_tables}
+rm("unique_lemmas_pos", "unique_not_matched", "subset_eye_table", "result", "ordered_filtered_unique_lemma_pos", "not_matched", "modified_merged_table", "merged_table", "filtered_unique_lemma_pos", "custom_frequencies", "frequency_df")
+```
 
 #### Identify stopwords
 ```{r stopwords}
