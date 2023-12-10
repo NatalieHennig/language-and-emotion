@@ -125,7 +125,7 @@ eye_table$lemma <- POS$lemma
 
 #### Word Frequency
 Frequencies are from the BNC.
-```{r get_frequency}
+```{r get_frequency, message=FALSE}
 column_names <- c("sort-order", "frequency", "word", "word-class")
 frequency_df <- read_delim(here("01_data", "lemma.al.txt"), delim = " ", col_names = column_names)
 ```
@@ -184,7 +184,6 @@ eye_table <- left_join(eye_table, frequency_df, by = c("lemma" = "word", "pos" =
   mutate(frequency = replace(frequency, is.na(frequency), 0))
 ```
 
-
 #### Identify stopwords
 ```{r stopwords}
 # Get English stopwords
@@ -196,8 +195,6 @@ stopwords_in_tokens <- tolower(eye_table$token) %in% english_stopwords
 # Add a new column to indicate stopwords
 eye_table$is_stopword <- as.integer(stopwords_in_tokens)
 ```
-
-
 #### Ensure data quality
 Count the number of words in each text to see if "ia" equals the token.
 ```{r quality_check_ia, eval=FALSE}
@@ -284,7 +281,7 @@ for (nr in 1:text_outputs){
 ```
 
 #### VADER
-```{r call_vader, eval=FALSE}
+```{r call_vader, eval=FALSE, message=FALSE, warning=FALSE}
 source_python(here("04_scripts", "01_vader.py"))
 
 for (nr in 1:text_outputs){
@@ -303,13 +300,13 @@ for (i in 1:12) {
   # Check if the file exists before attempting to read it
   if (file.exists(file_path)) {
     vader_scores <- read.csv(file_path)
-    merger <- vader_scores %>% select(tokenindex, token, vader_score, vader_polarity)
+    merger <- vader_scores %>% select(tokenindex, vader_score)
     
     text_name <- paste0("text", i)
     
     # Merge the data frame with its corresponding VADER scores
     text_df <- get(text_name)
-    text_df <- merge(text_df, merger, by = c("tokenindex", "token")) %>%
+    text_df <- merge(text_df, merger, by = c("tokenindex")) %>%
       group_by(textnr, participant_id) %>%
       arrange(tokenindex, .by_group = TRUE)
     
@@ -383,7 +380,7 @@ for (text_name in texts_listed) {
 # Export data files
 
 ```{r remove_dataframes}
-#rm("merger", "POS", "texts_listed", "vader_scores", "joint.data", "text_df", "text_in")
+rm("merger", "POS", "texts_listed", "vader_scores", "joint.data", "text_df", "text_in", "senti_scores")
 ```
 
 
