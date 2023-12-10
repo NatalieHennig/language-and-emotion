@@ -174,7 +174,7 @@ example:
 786 12889 above prep
 
 *Note* Curiously, spacey tags determiners as DT with a pos of PRON, which leads to a null value in the frequency cell because in *frequency_df*, determiners are mapped to determiners. 
-Investigate if there are other such cases. -> there are
+Investigate if there are other such cases. -> there are, the respective cases are extracted below. There are some cases, where there are different pos tags and some, where there are multiple entries with different pos tags. For the second case, the frequency will be extracted manually.
 
 ```{r}
 unidentified_lemmas <- unique(eye_table$lemma[which(eye_table$frequency == 0)])
@@ -183,55 +183,77 @@ not_matched <- subset(frequency_df, frequency_df$word %in% unidentified_lemmas)
 print(not_matched)
 ```
 
-
 ```{r}
 # Create a subset of eye_table with the desired condition
 subset_eye_table <- subset(eye_table, frequency == 0)
-
 # Get unique combinations of lemma and pos
 unique_lemmas_pos <- unique(subset_eye_table[, c("lemma", "pos")])
-
 # Keep only rows where "lemma" occurs in the "word" column of not_matched
 filtered_unique_lemma_pos <- unique_lemmas_pos[unique_lemmas_pos$lemma %in% not_matched$word, ]
-
+# Order
 ordered_filtered_unique_lemma_pos <- filtered_unique_lemma_pos[order(filtered_unique_lemma_pos$lemma), ]
 ```
 
 ```{r}
-# Assuming not_matched is obtained as described before
-
 # Identify unique entries in the "word" column
 unique_words <- not_matched$word[!duplicated(not_matched$word) & !duplicated(not_matched$word, fromLast = TRUE)]
-
 # Create a new dataframe with rows where "word" is unique
 unique_not_matched <- not_matched[not_matched$word %in% unique_words, ]
-
-# Print or use the unique_not_matched dataframe as needed
-print(unique_not_matched)
-
 ```
+
 ```{r}
 # Perform anti-join based on the "word" and "lemma" columns
 result <- anti_join(ordered_filtered_unique_lemma_pos, unique_not_matched, by = c("lemma" = "word"))
+# Add a new column "frequency" with values 0 to the result dataframe
+result <- mutate(result, frequency = 0)
+merged_table <- full_join(unique_not_matched, result, by = c("word" = "lemma", "pos_map" = "pos", "frequency"))
 ```
-Must be manually mapped:
 
-all	PRON			
-both	PRON			
-fast	VERB			
-kind	VERB			
-like	INTJ			
-most	ADJ			
-neither	CCONJ			
-own	ADJ			
-that	PRON			
-this	PRON
-though	SCONJ			
-to	PART			
-when	SCONJ			
-where	SCONJ			
-while	SCONJ			
-worth	ADJ
+```
+# List of words to be kept
+words_to_keep <- c("all", "both", "fast", "kind", "like", "most", "neither", "own", "that", "this", "though", "to", "when", "where", "while", "worth")
+
+# Filter rows where word is in the words_to_keep list
+filtered_not_matched <- not_matched %>%
+    filter(word %in% words_to_keep)
+
+# Print or use the filtered_not_matched dataframe as needed
+print(filtered_not_matched)
+```
+
+Manually mapped:
+all	PRON 230737	
+both	PRON 41162	
+fast	VERB 5527		
+kind	VERB 1152		
+like	INTJ	110090		
+most	ADJ	54966		
+neither	CCONJ	3018		
+own	ADJ	6236		
+that	PRON	384313		
+this	PRON 461945
+though	SCONJ	34801		
+to	PART	1039323		
+when	SCONJ	113655		
+where	SCONJ	44496		
+while	SCONJ	50548		
+worth	ADJ 9183
+
+```{r}
+# Define a data frame with the specified frequencies for certain words
+custom_frequencies <- data.frame(
+  word = c("all", "both", "fast", "kind", "like", "most", "neither", "own", "that", "this", "though", "to", "when", "where", "while", "worth"),
+  frequency = c(230737, 41162, 5527, 1152, 110090, 54966, 3018, 6236, 384313, 461945, 34801, 1039323, 113655, 44496, 50548, 9183)
+)
+
+# Merge the custom_frequencies data frame with merged_table based on the "word" column
+modified_merged_table <- merge(merged_table, custom_frequencies, by = "word", all.x = TRUE)
+# Replace the original frequency column with the custom frequencies where available
+modified_merged_table$frequency <- ifelse(!is.na(modified_merged_table$frequency.y), modified_merged_table$frequency.y, modified_merged_table$frequency.x)
+# Remove the unnecessary frequency columns
+modified_merged_table <- select(modified_merged_table, -c(frequency.x, frequency.y))
+print(modified_merged_table)
+```
 
 ```{r add_frequency}
 frequency_df <- frequency_df %>% select("word", "frequency", "pos_map")
