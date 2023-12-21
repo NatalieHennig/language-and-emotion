@@ -12,14 +12,14 @@
 10,11,12,11,professional,0.0,Neutral
 11,12,12,12,and,0.0,Neutral
 12,13,12,13,personal,0.0,Neutral
-13,14,12,14,use;,0.0,Neutral
+13,14,12,14,use,0.0,Neutral
 14,15,12,15,such,0.0,Neutral
 15,16,12,16,is,0.0,Neutral
 16,17,12,17,the,0.0,Neutral
 17,18,12,18,case,0.0,Neutral
 18,19,12,19,with,0.0,Neutral
 19,20,12,20,smart,0.4019,Positive
-20,21,12,21,phones.,0.0,Neutral
+20,21,12,21,phones,0.0,Neutral
 21,22,12,22,Professionals,0.0,Neutral
 22,23,12,23,now,0.0,Neutral
 23,24,12,24,have,0.0,Neutral
@@ -31,12 +31,12 @@
 29,30,12,30,capable,0.3818,Positive
 30,31,12,31,of,0.0,Neutral
 31,32,12,32,digital,0.0,Neutral
-32,33,12,33,"media,",0.0,Neutral
+32,33,12,33,media,0.0,Neutral
 33,34,12,34,internet,0.0,Neutral
-34,35,12,35,"access,",0.0,Neutral
+34,35,12,35,access,0.0,Neutral
 35,36,12,36,phone,0.0,Neutral
-36,37,12,37,"communication,",0.0,Neutral
-37,38,12,38,multi-,0.0,Neutral
+36,37,12,37,communication,0.0,Neutral
+37,38,12,38,multi,0.0,Neutral
 38,39,12,39,person,0.0,Neutral
 39,40,12,40,scheduling,0.0,Neutral
 40,41,12,41,and,0.0,Neutral
@@ -45,7 +45,7 @@
 43,44,12,44,for,0.0,Neutral
 44,45,12,45,documents,0.0,Neutral
 45,46,12,46,and,0.0,Neutral
-46,47,12,47,presentations.,0.0,Neutral
+46,47,12,47,presentations,0.0,Neutral
 47,48,12,48,Businesspeople,0.0,Neutral
 48,49,12,49,that,0.0,Neutral
 49,50,12,50,are,0.0,Neutral
@@ -61,7 +61,7 @@
 59,60,12,60,features,0.0,Neutral
 60,61,12,61,on,0.0,Neutral
 61,62,12,62,smart,0.4019,Positive
-62,63,12,63,phones.,0.0,Neutral
+62,63,12,63,phones,0.0,Neutral
 63,64,12,64,Individuals,0.0,Neutral
 64,65,12,65,who,0.0,Neutral
 65,66,12,66,simply,0.0,Neutral
@@ -69,7 +69,7 @@
 67,68,12,68,the,0.0,Neutral
 68,69,12,69,luxury,0.0,Neutral
 69,70,12,70,of,0.0,Neutral
-70,71,12,71,multi-,0.0,Neutral
+70,71,12,71,multi,0.0,Neutral
 71,72,12,72,function,0.0,Neutral
 72,73,12,73,devices,0.0,Neutral
 73,74,12,74,often,0.0,Neutral
@@ -84,7 +84,7 @@
 82,83,12,83,downloading,0.0,Neutral
 83,84,12,84,catchy,0.0,Neutral
 84,85,12,85,ring,0.0,Neutral
-85,86,12,86,"tones,",0.0,Neutral
+85,86,12,86,tones,0.0,Neutral
 86,87,12,87,instant,0.0,Neutral
 87,88,12,88,messaging,0.0,Neutral
 88,89,12,89,about,0.0,Neutral
@@ -106,7 +106,7 @@
 104,105,12,105,head,0.0,Neutral
 105,106,12,106,during,0.0,Neutral
 106,107,12,107,the,0.0,Neutral
-107,108,12,108,Superbowl.,0.0,Neutral
+107,108,12,108,Superbowl,0.0,Neutral
 108,109,12,109,This,0.0,Neutral
 109,110,12,110,fusion,0.0,Neutral
 110,111,12,111,of,0.0,Neutral
@@ -131,7 +131,7 @@
 129,130,12,130,work,0.0,Neutral
 130,131,12,131,and,0.0,Neutral
 131,132,12,132,personal,0.0,Neutral
-132,133,12,133,"life,",0.0,Neutral
+132,133,12,133,life,0.0,Neutral
 133,134,12,134,or,0.0,Neutral
 134,135,12,135,individuals,0.0,Neutral
 135,136,12,136,could,0.0,Neutral
@@ -146,4 +146,4 @@
 144,145,12,145,connectivity,0.0,Neutral
 145,146,12,146,in,0.0,Neutral
 146,147,12,147,personal,0.0,Neutral
-147,148,12,148,lives.,0.0,Neutral
+147,148,12,148,lives,0.0,Neutral

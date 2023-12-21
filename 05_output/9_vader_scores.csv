@@ -1,7 +1,7 @@
 ,Unnamed: 0,textnr,tokenindex,token,vader_score,vader_polarity
 0,1,9,1,At,0.0,Neutral
 1,2,9,2,one,0.0,Neutral
-2,3,9,3,"time,",0.0,Neutral
+2,3,9,3,time,0.0,Neutral
 3,4,9,4,the,0.0,Neutral
 4,5,9,5,use,0.0,Neutral
 5,6,9,6,of,0.0,Neutral
@@ -12,7 +12,7 @@
 10,11,9,11,problems,-0.4019,Negative
 11,12,9,12,was,0.0,Neutral
 12,13,9,13,quite,0.0,Neutral
-13,14,9,14,common.,0.0,Neutral
+13,14,9,14,common,0.0,Neutral
 14,15,9,15,If,0.0,Neutral
 15,16,9,16,a,0.0,Neutral
 16,17,9,17,person,0.0,Neutral
@@ -24,7 +24,7 @@
 22,23,9,23,or,0.0,Neutral
 23,24,9,24,a,0.0,Neutral
 24,25,9,25,bee,0.0,Neutral
-25,26,9,26,"sting,",0.0,Neutral
+25,26,9,26,sting,0.0,Neutral
 26,27,9,27,leeches,0.0,Neutral
 27,28,9,28,were,0.0,Neutral
 28,29,9,29,believed,0.0,Neutral
@@ -46,7 +46,7 @@
 44,45,9,45,top,0.2023,Positive
 45,46,9,46,of,0.0,Neutral
 46,47,9,47,the,0.0,Neutral
-47,48,9,48,wound.,0.0,Neutral
+47,48,9,48,wound,0.0,Neutral
 48,49,9,49,They,0.0,Neutral
 49,50,9,50,have,0.0,Neutral
 50,51,9,51,also,0.0,Neutral
@@ -58,7 +58,7 @@
 56,57,9,57,and,0.0,Neutral
 57,58,9,58,to,0.0,Neutral
 58,59,9,59,stop,-0.296,Negative
-59,60,9,60,"hemorrhages,",0.0,Neutral
+59,60,9,60,hemorrhages,0.0,Neutral
 60,61,9,61,although,0.0,Neutral
 61,62,9,62,neither,0.0,Neutral
 62,63,9,63,of,0.0,Neutral
@@ -70,10 +70,10 @@
 68,69,9,69,considered,0.0,Neutral
 69,70,9,70,acceptable,0.3182,Positive
 70,71,9,71,by,0.0,Neutral
-71,72,9,72,present-,0.0,Neutral
+71,72,9,72,present,0.0,Neutral
 72,73,9,73,day,0.0,Neutral
-73,74,9,74,physicians.,0.0,Neutral
-74,75,9,75,"Today,",0.0,Neutral
+73,74,9,74,physicians,0.0,Neutral
+74,75,9,75,Today,0.0,Neutral
 75,76,9,76,leeches,0.0,Neutral
 76,77,9,77,are,0.0,Neutral
 77,78,9,78,still,0.0,Neutral
@@ -81,9 +81,9 @@
 79,80,9,80,on,0.0,Neutral
 80,81,9,81,a,0.0,Neutral
 81,82,9,82,limited,-0.2263,Negative
-82,83,9,83,basis.,0.0,Neutral
+82,83,9,83,basis,0.0,Neutral
 83,84,9,84,Most,0.0,Neutral
-84,85,9,85,"often,",0.0,Neutral
+84,85,9,85,often,0.0,Neutral
 85,86,9,86,leeches,0.0,Neutral
 86,87,9,87,are,0.0,Neutral
 87,88,9,88,used,0.0,Neutral
@@ -92,7 +92,7 @@
 90,91,9,91,blood,0.0,Neutral
 91,92,9,92,from,0.0,Neutral
 92,93,9,93,clogged,0.0,Neutral
-93,94,9,94,veins.,0.0,Neutral
+93,94,9,94,veins,0.0,Neutral
 94,95,9,95,This,0.0,Neutral
 95,96,9,96,results,0.0,Neutral
 96,97,9,97,in,0.0,Neutral
@@ -105,7 +105,7 @@
 103,104,9,104,also,0.0,Neutral
 104,105,9,105,ensures,0.0,Neutral
 105,106,9,106,the,0.0,Neutral
-106,107,9,107,patient's,0.0,Neutral
+106,107,9,107,patients,0.0,Neutral
 107,108,9,108,blood,0.0,Neutral
 108,109,9,109,will,0.0,Neutral
 109,110,9,110,not,0.0,Neutral
@@ -114,4 +114,4 @@
 112,113,9,113,it,0.0,Neutral
 113,114,9,114,is,0.0,Neutral
 114,115,9,115,being,0.0,Neutral
-115,116,9,116,drained.,-0.3612,Negative
+115,116,9,116,drained,-0.3612,Negative

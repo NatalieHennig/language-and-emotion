@@ -6,7 +6,7 @@
 4,5,8,5,an,0.0,Neutral
 5,6,8,6,extremely,0.0,Neutral
 6,7,8,7,fascinating,0.5423,Positive
-7,8,8,8,"phenomenon,",0.0,Neutral
+7,8,8,8,phenomenon,0.0,Neutral
 8,9,8,9,one,0.0,Neutral
 9,10,8,10,that,0.0,Neutral
 10,11,8,11,biologists,0.0,Neutral
@@ -16,8 +16,8 @@
 14,15,8,15,close,0.0,Neutral
 15,16,8,16,to,0.0,Neutral
 16,17,8,17,understanding,0.0,Neutral
-17,18,8,18,fully.,0.0,Neutral
-18,19,8,19,"However,",0.0,Neutral
+17,18,8,18,fully,0.0,Neutral
+18,19,8,19,However,0.0,Neutral
 19,20,8,20,it,0.0,Neutral
 20,21,8,21,is,0.0,Neutral
 21,22,8,22,quite,0.0,Neutral
@@ -31,8 +31,8 @@
 29,30,8,30,the,0.0,Neutral
 30,31,8,31,cold,0.0,Neutral
 31,32,8,32,winter,0.0,Neutral
-32,33,8,33,months.,0.0,Neutral
-33,34,8,34,"Usually,",0.0,Neutral
+32,33,8,33,months,0.0,Neutral
+33,34,8,34,Usually,0.0,Neutral
 34,35,8,35,it,0.0,Neutral
 35,36,8,36,is,0.0,Neutral
 36,37,8,37,because,0.0,Neutral
@@ -43,7 +43,7 @@
 41,42,8,42,scarce,0.0,Neutral
 42,43,8,43,during,0.0,Neutral
 43,44,8,44,this,0.0,Neutral
-44,45,8,45,time.,0.0,Neutral
+44,45,8,45,time,0.0,Neutral
 45,46,8,46,Animals,0.0,Neutral
 46,47,8,47,that,0.0,Neutral
 47,48,8,48,are,0.0,Neutral
@@ -53,7 +53,7 @@
 51,52,8,52,the,0.0,Neutral
 52,53,8,53,winters,0.0,Neutral
 53,54,8,54,extremely,0.0,Neutral
-54,55,8,55,"tough,",-0.128,Negative
+54,55,8,55,tough,-0.128,Negative
 55,56,8,56,because,0.0,Neutral
 56,57,8,57,all,0.0,Neutral
 57,58,8,58,of,0.0,Neutral
@@ -67,7 +67,7 @@
 65,66,8,66,the,0.0,Neutral
 66,67,8,67,time,0.0,Neutral
 67,68,8,68,winter,0.0,Neutral
-68,69,8,69,arrives.,0.0,Neutral
+68,69,8,69,arrives,0.0,Neutral
 69,70,8,70,Hibernation,0.0,Neutral
 70,71,8,71,is,0.0,Neutral
 71,72,8,72,essentially,0.0,Neutral
@@ -78,7 +78,7 @@
 76,77,8,77,with,0.0,Neutral
 77,78,8,78,this,0.0,Neutral
 78,79,8,79,food,0.0,Neutral
-79,80,8,80,shortage.,-0.25,Negative
+79,80,8,80,shortage,-0.25,Negative
 80,81,8,81,Animals,0.0,Neutral
 81,82,8,82,like,0.3612,Positive
 82,83,8,83,birds,0.0,Neutral
@@ -89,8 +89,8 @@
 87,88,8,88,small,0.0,Neutral
 88,89,8,89,insects,0.0,Neutral
 89,90,8,90,for,0.0,Neutral
-90,91,8,91,sustenance.,0.0,Neutral
-91,92,8,92,"Obviously,",0.0,Neutral
+90,91,8,91,sustenance,0.0,Neutral
+91,92,8,92,Obviously,0.0,Neutral
 92,93,8,93,these,0.0,Neutral
 93,94,8,94,will,0.0,Neutral
 94,95,8,95,also,0.0,Neutral
@@ -106,7 +106,7 @@
 104,105,8,105,becomes,0.0,Neutral
 105,106,8,106,covered,0.0,Neutral
 106,107,8,107,and,0.0,Neutral
-107,108,8,108,frozen.,0.0,Neutral
+107,108,8,108,frozen,0.0,Neutral
 108,109,8,109,Many,0.0,Neutral
 109,110,8,110,birds,0.0,Neutral
 110,111,8,111,address,0.0,Neutral
@@ -118,7 +118,7 @@
 116,117,8,117,quite,0.0,Neutral
 117,118,8,118,a,0.0,Neutral
 118,119,8,119,different,0.0,Neutral
-119,120,8,120,way:,0.0,Neutral
+119,120,8,120,way,0.0,Neutral
 120,121,8,121,they,0.0,Neutral
 121,122,8,122,migrate,0.0,Neutral
 122,123,8,123,to,0.0,Neutral
@@ -131,4 +131,4 @@
 129,130,8,130,food,0.0,Neutral
 130,131,8,131,will,0.0,Neutral
 131,132,8,132,be,0.0,Neutral
-132,133,8,133,plentiful.,0.0,Neutral
+132,133,8,133,plentiful,0.0,Neutral

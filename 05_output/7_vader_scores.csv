@@ -1,22 +1,22 @@
 ,Unnamed: 0,textnr,tokenindex,token,vader_score,vader_polarity
 0,1,7,1,A,0.0,Neutral
-1,2,7,2,bird's,0.0,Neutral
+1,2,7,2,birds,0.0,Neutral
 2,3,7,3,feathers,0.0,Neutral
 3,4,7,4,are,0.0,Neutral
 4,5,7,5,extremely,0.0,Neutral
-5,6,7,6,"important,",0.2023,Positive
+5,6,7,6,important,0.2023,Positive
 6,7,7,7,and,0.0,Neutral
 7,8,7,8,when,0.0,Neutral
 8,9,7,9,they,0.0,Neutral
 9,10,7,10,clean,0.4019,Positive
 10,11,7,11,and,0.0,Neutral
 11,12,7,12,smooth,0.0,Neutral
-12,13,7,13,"them,",0.0,Neutral
+12,13,7,13,them,0.0,Neutral
 13,14,7,14,it,0.0,Neutral
 14,15,7,15,is,0.0,Neutral
 15,16,7,16,known,0.0,Neutral
 16,17,7,17,as,0.0,Neutral
-17,18,7,18,preening.,0.0,Neutral
+17,18,7,18,preening,0.0,Neutral
 18,19,7,19,Birds,0.0,Neutral
 19,20,7,20,in,0.0,Neutral
 20,21,7,21,the,0.0,Neutral
@@ -27,7 +27,7 @@
 25,26,7,26,on,0.0,Neutral
 26,27,7,27,a,0.0,Neutral
 27,28,7,28,regular,0.0,Neutral
-28,29,7,29,basis.,0.0,Neutral
+28,29,7,29,basis,0.0,Neutral
 29,30,7,30,This,0.0,Neutral
 30,31,7,31,is,0.0,Neutral
 31,32,7,32,true,0.4215,Positive
@@ -36,12 +36,12 @@
 34,35,7,35,captive,0.0,Neutral
 35,36,7,36,birds,0.0,Neutral
 36,37,7,37,as,0.0,Neutral
-37,38,7,38,"well,",0.2732,Positive
+37,38,7,38,well,0.2732,Positive
 38,39,7,39,but,0.0,Neutral
 39,40,7,40,not,0.0,Neutral
-40,41,7,41,all.,0.0,Neutral
+40,41,7,41,all,0.0,Neutral
 41,42,7,42,For,0.0,Neutral
-42,43,7,43,"example,",0.0,Neutral
+42,43,7,43,example,0.0,Neutral
 43,44,7,44,some,0.0,Neutral
 44,45,7,45,birds,0.0,Neutral
 45,46,7,46,do,0.0,Neutral
@@ -50,7 +50,7 @@
 48,49,7,49,their,0.0,Neutral
 49,50,7,50,feathers,0.0,Neutral
 50,51,7,51,at,0.0,Neutral
-51,52,7,52,all.,0.0,Neutral
+51,52,7,52,all,0.0,Neutral
 52,53,7,53,This,0.0,Neutral
 53,54,7,54,problem,-0.4019,Negative
 54,55,7,55,is,0.0,Neutral
@@ -68,8 +68,8 @@
 66,67,7,67,a,0.0,Neutral
 67,68,7,68,very,0.0,Neutral
 68,69,7,69,young,0.0,Neutral
-69,70,7,70,age.,0.0,Neutral
-70,71,7,71,"Presumably,",0.0,Neutral
+69,70,7,70,age,0.0,Neutral
+70,71,7,71,Presumably,0.0,Neutral
 71,72,7,72,the,0.0,Neutral
 72,73,7,73,absence,0.0,Neutral
 73,74,7,74,of,0.0,Neutral
@@ -88,7 +88,7 @@
 86,87,7,87,to,0.0,Neutral
 87,88,7,88,do,0.0,Neutral
 88,89,7,89,it,0.0,Neutral
-89,90,7,90,properly.,0.0,Neutral
+89,90,7,90,properly,0.0,Neutral
 90,91,7,91,A,0.0,Neutral
 91,92,7,92,more,0.0,Neutral
 92,93,7,93,common,0.0,Neutral
@@ -98,7 +98,7 @@
 96,97,7,97,birds,0.0,Neutral
 97,98,7,98,is,0.0,Neutral
 98,99,7,99,excessive,0.0,Neutral
-99,100,7,100,preening.,0.0,Neutral
+99,100,7,100,preening,0.0,Neutral
 100,101,7,101,Some,0.0,Neutral
 101,102,7,102,birds,0.0,Neutral
 102,103,7,103,may,0.0,Neutral
@@ -115,7 +115,7 @@
 113,114,7,114,down,0.0,Neutral
 114,115,7,115,to,0.0,Neutral
 115,116,7,116,the,0.0,Neutral
-116,117,7,117,skin.,0.0,Neutral
+116,117,7,117,skin,0.0,Neutral
 117,118,7,118,It,0.0,Neutral
 118,119,7,119,should,0.0,Neutral
 119,120,7,120,be,0.0,Neutral
@@ -128,7 +128,7 @@
 126,127,7,127,this,0.0,Neutral
 127,128,7,128,kind,0.5267,Positive
 128,129,7,129,of,0.0,Neutral
-129,130,7,130,behavior.,0.0,Neutral
+129,130,7,130,behavior,0.0,Neutral
 130,131,7,131,There,0.0,Neutral
 131,132,7,132,are,0.0,Neutral
 132,133,7,133,several,0.0,Neutral
@@ -142,7 +142,7 @@
 140,141,7,141,preening,0.0,Neutral
 141,142,7,142,can,0.0,Neutral
 142,143,7,143,be,0.0,Neutral
-143,144,7,144,"solved,",0.2732,Positive
+143,144,7,144,solved,0.2732,Positive
 144,145,7,145,such,0.0,Neutral
 145,146,7,146,as,0.0,Neutral
 146,147,7,147,giving,0.34,Positive
@@ -160,8 +160,8 @@
 158,159,7,159,activity,0.0,Neutral
 159,160,7,160,to,0.0,Neutral
 160,161,7,161,prevent,0.0258,Positive
-161,162,7,162,boredom.,-0.3182,Negative
-162,163,7,163,"However,",0.0,Neutral
+161,162,7,162,boredom,-0.3182,Negative
+162,163,7,163,However,0.0,Neutral
 163,164,7,164,these,0.0,Neutral
 164,165,7,165,measures,0.0,Neutral
 165,166,7,166,are,0.0,Neutral
@@ -171,4 +171,4 @@
 169,170,7,170,to,0.0,Neutral
 170,171,7,171,solve,0.2023,Positive
 171,172,7,172,the,0.0,Neutral
-172,173,7,173,problem.,-0.4019,Negative
+172,173,7,173,problem,-0.4019,Negative
