@@ -5,7 +5,7 @@ import pandas as pd
 #nltk.download('vader_lexicon')
 
 def add_vader_score(nr, pos=0.02, neg=-0.02):
-  df = pd.read_csv("./05_output/{}_text_tokens.csv".format(nr))
+  df = pd.read_csv("/Users/nataliehennig/Documents/language-and-emotion/05_output/{}_text_tokens.csv".format(nr))
   
   # get polarity scores from VADER
   sentiments = SentimentIntensityAnalyzer()
@@ -26,4 +26,4 @@ def add_vader_score(nr, pos=0.02, neg=-0.02):
   df["vader_polarity"] = sentiment
   
   #df.drop(df.columns[[4]], axis=1, inplace=True)
-  df.to_csv("./05_output/{}_vader_scores.csv".format(nr))
+  df.to_csv("/Users/nataliehennig/Documents/language-and-emotion/05_output/{}_vader_scores.csv".format(nr))

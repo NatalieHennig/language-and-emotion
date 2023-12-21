@@ -276,6 +276,15 @@ eye_table <- select(eye_table, -c(frequency.x, frequency.y))
 rm("unique_lemmas_pos", "unique_not_matched", "subset_eye_table", "result", "ordered_filtered_unique_lemma_pos", "not_matched", "modified_merged_table", "merged_table", "filtered_unique_lemma_pos", "custom_frequencies", "frequency_df")
 ```
 
+#### Calculate frequency per million words
+The BNC CQP-Web version contains 98,313,429 tokens.
+
+```{r freq_per_mill}
+#(freq / 98313429) * 1000000000
+
+```
+
+
 #### Identify stopwords
 ```{r stopwords}
 # Get English stopwords
@@ -364,7 +373,7 @@ There exist several valency scores. Hutto & Gilbert (2014) provide a rundown of 
 
 First, the columns *textnr*, *tokenindex*, and *token* for each text is extracted. They serve as a key, so that they can be reassigned with the polarity scores to the main table. The output is saved as a csv file.
 *distinct()* is used to get the full text only once, instead times the number of participants. It is currently set to *eval=FALSE* because it only needs to run once, to extract the csv files.
-```{r export_text_column, eval=FALSE}
+```{r export_text_column, eval=FALSE, include=FALSE}
 text_outputs = 12
 for (nr in 1:text_outputs){
   out <- get(paste0("text", nr)) %>% ungroup() %>% select(textnr, tokenindex, token) %>% distinct()
@@ -373,11 +382,11 @@ for (nr in 1:text_outputs){
 ```
 
 #### VADER
-```{r call_vader, eval=FALSE, message=FALSE, warning=FALSE}
+```{r call_vader, eval=FALSE, message=FALSE, warning=FALSE, include=FALSE}
 source_python(here("04_scripts", "01_vader.py"))
 
 for (nr in 1:text_outputs){
-  assign_polarity_score(nr)
+  add_vader_score(nr)
 }
 ```
 *assign_polarity_scores* has positive and negative values as optional argument. The default is set to *0.02*/*-0.02*. Files are saved in 05_output as *nr_vader_scores.csv*.
@@ -438,8 +447,7 @@ for (text_name in texts_listed) {
 - Pre-trained on the wiki.en corpus, particularly suitable for the texts under investigation
 - expandable to different languages
 
-"it was shown that the computational AAP values predicted ~2800 human database (subtlex). In a first cross-validation study, it was shown that the computational AAP values
-valence ratings from the BAWL better than the computational valence values, establishing the SDEWAC predicted ~2800 human valence ratings from the BAWL better than the computational valence values,VSM as the best-fitting of the three VSMs (R2 > 0.5, r = 0.72, p < 0.00012)." (Jacobs & Kinder 2019) 
+"it was shown that the computational AAP values predicted ~2800 human database (subtlex). In a first cross-validation study, it was shown that the computational AAP values establishing the SDEWAC predicted ~2800 human valence ratings from the BAWL better than the computational valence values,VSM as the best-fitting of the three VSMs (R2 > 0.5, r = 0.72, p < 0.00012)." (Jacobs & Kinder 2019) 
 
 ```{r add_AAP}
 senti_scores <- read_xlsx(here("01_data", "250kSentiArt_EN.xlsx"))
@@ -465,14 +473,12 @@ for (text_name in texts_listed) {
   print(paste0(text_name, " - ", "ANEW: ", round(coverage_anew,0), "%, ", "VADER: ", round(coverage_vader,0), "%, ", "AAP: ", round(coverage_sentiart,0), "%"))
 }
 ```
+*Note*: The coverage increases for ANEW, when lemmas instead of tokens are used. This can't be done for VADER, as it influences the intensity while the coverage remains the same.
 
-# Prepare the leap-q xlsx files
-
-
-# Export data files
 ```{r remove_dataframes}
 rm("merger", "POS", "texts_listed", "vader_scores", "joint.data", "text_df", "text_in", "senti_scores")
 ```
 
-
+# Prepare the leap-q xlsx files
+TBD
 
