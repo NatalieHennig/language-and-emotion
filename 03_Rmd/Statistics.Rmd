@@ -3,6 +3,8 @@
 ## Libraries
 ```{r message=FALSE, warning=FALSE}
 library(lme4)
+library(ggplot2)
+library(reshape2)
 ```
 
 ## Declare variables
@@ -30,6 +32,8 @@ participant = article$participant_id
 
 
 ## Correlation
+**Note:** This uses the AAPz values. Stopwords must be set to 0!
+
 ```{r correlation}
 duration[is.na(duration)] <- 0
 
@@ -37,12 +41,36 @@ cor(word_length,duration)
 cor(word_frequency, duration)
 cor(valency, duration)
 ```
-```{r}
-cor_by_participant <- tapply(word_length, participant, function(word_length_subset) {
-  duration_subset <- duration[participant == levels(participant)[length(word_length_subset)]]
-  cor(word_length_subset, duration_subset)})
 
-print(cor_by_participant)
+```{r correlation_by_participant}
+article$dur[is.na(article$dur)] <- 0
+
+article %>%
+  group_by(participant_id) %>%
+  summarise(cor_valency=cor(AAPz, dur), cor_length=cor(word_length, dur), cor_frequency=cor(frequency, dur))
+```
+```{r correlation_by_language}
+ cor_by_language <- article %>%
+  group_by(lang) %>%
+  summarise(cor_valency=cor(AAPz, dur), cor_length=cor(word_length, dur), cor_frequency=cor(frequency, dur))
+```
+
+```{r cor_heatmap}
+# Melt the data for easier plotting
+melted_data <- melt(cor_by_language, id.vars = "lang")
+
+# Use the absolute values of correlations
+melted_data$value <- abs(melted_data$value)
+
+heatmap_plot <- ggplot(melted_data, aes(x = variable, y = lang, fill = value)) +
+    geom_tile(color = "white") +
+    scale_fill_gradient2(low = "red", mid = "yellow", high = "blue", midpoint = 0, guide = "colorbar") +
+    labs(title = "Correlation Heatmap",
+         x = "Variables",
+         y = "Language Groups") +
+    theme_minimal()
+
+print(heatmap_plot)
 ```
 
 
