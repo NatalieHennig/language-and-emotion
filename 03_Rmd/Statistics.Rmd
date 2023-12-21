@@ -102,9 +102,13 @@ result <- lmer(log_duration ~ valency + (1 + valency | word_length))
 summary(result)
 ```
 
+```{r}
+result <- lmer(log_duration ~ valency + (1 + valency | participant))
+summary(result)
+```
 
 ```{r}
-result <- lmer(duration ~ valency + (1 + valency | participant) + (1 + valency | word_length))
+result <- lmer(log_duration ~ valency + (1 + valency | participant) + (1 | word_length))
 summary(result)
 ```
 
