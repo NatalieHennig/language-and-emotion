@@ -7,43 +7,55 @@ library(lme4)
 
 ## Declare variables
 ```{r variables}
+# data
+article <- text1 %>% select(-c(nfix, refix))
 
+# dependent variable
+duration = article$dur
+log_duration = log(duration)
 
+# independent variable
+valency = article$AAPz
+
+# confounders
+word_length = article$word_length
+word_frequency = article$frequency
+#predictability = TBD
+POS = article$pos
 ```
 
 
 ## Correlation
 ```{r}
-text1$dur[is.na(text1$dur)] <- 0
-cor(text1$word_length,text1$dur)
+duration[is.na(duration)] <- 0
+cor(word_length,duration)
 ```
 
-
-
-```{r}
-lm(text1$dur ~ text1$AAPz)
-```
-
-For the log-transformation, values that are 0 must be adjusted.
-There are multiple options for handling missing values. While they could be removed, this would lead to a loss of data. 
-```
-# remove missing values
-text1 <- na.omit(text1)
-```
+### Log-Transformation
+For the log-transformation, values that are *0*/*NA* must be adjusted.
+There are multiple options for handling missing values. While they could be removed, this would lead to a loss of data.  
 Another approach is to set it to a very low value, for example 1ms.
-```{r handle_missing_values}
+```{r}
+hist(duration)
+hist(log_duration)
+```
 
+## Regression
+```{r}
+lm(duration ~ valency)
 ```
 
 
 ```{r log_transform}
-dv <- log(text1$dur)
-result <- lm(dv ~ text1$AAPz)
+# Replace Inf and -Inf values with 0
+log_duration[is.infinite(log_duration)] <- 0
+
+result <- lm(log_duration ~ valency)
 summary(result)
 ```
 
 ```{r}
-t2 <- lmer(dv ~ text1$AAPz + (1 + text1$AAPz | text1$word_length))
+t2 <- lmer(log_duration ~ valency + (1 + valency | word_length))
 summary(t2)
 ```
 
