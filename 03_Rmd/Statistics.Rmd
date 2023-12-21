@@ -18,22 +18,37 @@ log_duration = log(duration)
 valency = article$AAPz
 
 # confounders
+# lexical-level 
 word_length = article$word_length
 word_frequency = article$frequency
 #predictability = TBD
 POS = article$pos
+
+# participant-level
+participant = article$participant_id
 ```
 
 
 ## Correlation
-```{r}
+```{r correlation}
 duration[is.na(duration)] <- 0
+
 cor(word_length,duration)
+cor(word_frequency, duration)
+cor(valency, duration)
+```
+```{r}
+cor_by_participant <- tapply(word_length, participant, function(word_length_subset) {
+  duration_subset <- duration[participant == levels(participant)[length(word_length_subset)]]
+  cor(word_length_subset, duration_subset)})
+
+print(cor_by_participant)
 ```
 
+
 ### Log-Transformation
-For the log-transformation, values that are *0*/*NA* must be adjusted.
-There are multiple options for handling missing values. While they could be removed, this would lead to a loss of data.  
+Note: Values that are *NA* must be dealt with. There are multiple options for handling missing values. 
+While they could be removed, this would lead to a loss of data.  
 Another approach is to set it to a very low value, for example 1ms.
 ```{r}
 hist(duration)
@@ -55,18 +70,15 @@ summary(result)
 ```
 
 ```{r}
-t2 <- lmer(log_duration ~ valency + (1 + valency | word_length))
-summary(t2)
+result <- lmer(log_duration ~ valency + (1 + valency | word_length))
+summary(result)
 ```
 
 
 ```{r}
-t2 <- lmer(dv ~ AAPz + (1 + AAPz | participant_id) + (1 + AAPz | word_length), data = text1)
-summary(t2)
+result <- lmer(duration ~ valency + (1 + valency | participant) + (1 + valency | word_length))
+summary(result)
 ```
 
-```{r error_convergence}
-t2 <- lmer(dv ~ AAPz + (1 + AAPz | participant_id) + (1 + AAPz | word_length) + (1 + AAPz | frequency), data = text1)
-```
 
 
