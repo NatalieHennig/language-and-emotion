@@ -53,6 +53,8 @@ article %>%
  cor_by_language <- article %>%
   group_by(lang) %>%
   summarise(cor_valency=cor(AAPz, dur), cor_length=cor(word_length, dur), cor_frequency=cor(frequency, dur))
+
+print(cor_by_language)
 ```
 
 ```{r cor_heatmap}
@@ -84,6 +86,10 @@ hist(log_duration)
 ```
 
 ## Regression
+COMMENT: multifactorial linear regression analysis (multiple factors - see which one is significant)
+- step-down and step-up analysis (also interactions between variables)
+- begin with step-down 
+- draw up a maximum model based on what is expected from the literature, 1 code per RQ -> send per email, then weed out the insignificant variables
 ```{r}
 lm(duration ~ valency)
 ```
@@ -97,6 +103,7 @@ result <- lm(log_duration ~ valency)
 summary(result)
 ```
 
+Comment: Would need ANOVA to see which model is more significant
 ```{r}
 result <- lmer(log_duration ~ valency + (1 + valency | word_length))
 summary(result)
