@@ -492,7 +492,9 @@ overlap <- overlap %>%
 ```{r participants_all_text}
 all_texts <- overlap %>% filter(across(-1, ~. == 1))
 ```
-```{r}
+There are only 94 participants who have read all 12 texts. In contrast, 288 participants have read texts 1,2, 3, and 4 (see below).
+
+```{r count_texts_read}
 # Count occurrences of "1" in each numeric column except the first one
 counts_of_1 <- overlap %>%
   select(-participant_id) %>%
@@ -502,6 +504,13 @@ counts_of_1 <- overlap %>%
 print(counts_of_1)
 ```
 Texts 1, 2, 3, and 4 have over 400 participants.
+
+```{r}
+subset_overlap <- select(overlap, c("participant_id", "1", "2", "3", "4"))
+
+subset_texts <- subset_overlap %>% filter(across(-1, ~. == 1))
+```
+
 
 # Prepare the leap-q xlsx files
 TBD
