@@ -30,6 +30,10 @@ POS = article$pos
 participant = article$participant_id
 ```
 
+```{r concatenate_tables}
+text1_to_4 <- rbind(text1, text2, text3, text4)
+```
+
 
 ## Correlation
 **Note:** This uses the AAPz values. Stopwords must be set to 0!
@@ -40,6 +44,14 @@ duration[is.na(duration)] <- 0
 cor(word_length,duration)
 cor(word_frequency, duration)
 cor(valency, duration)
+```
+
+with article set to **text1_to_4**
+```
+group_by(participant) %>%
++     summarize(cor=cor(valency, duration))
+Error in UseMethod("group_by") : 
+  no applicable method for 'group_by' applied to an object of class "factor"
 ```
 
 ```{r correlation_by_participant}
