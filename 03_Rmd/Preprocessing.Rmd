@@ -479,6 +479,30 @@ for (text_name in texts_listed) {
 rm("merger", "POS", "texts_listed", "vader_scores", "joint.data", "text_df", "text_in", "senti_scores")
 ```
 
+# Overlap between texts
+```{r get_overlap}
+overlap <- unique(select(eye_table, c(participant_id, textnr)))
+
+overlap <- overlap %>% mutate(value = 1)
+
+overlap <- overlap %>%
+  pivot_wider(names_from = textnr, values_from = value, values_fill = 0)
+```
+
+```{r participants_all_text}
+all_texts <- overlap %>% filter(across(-1, ~. == 1))
+```
+```{r}
+# Count occurrences of "1" in each numeric column except the first one
+counts_of_1 <- overlap %>%
+  select(-participant_id) %>%
+  ungroup() %>%
+  summarise(across(everything(), ~sum(. == 1, na.rm = TRUE)))
+
+print(counts_of_1)
+```
+Texts 1, 2, 3, and 4 have over 400 participants.
+
 # Prepare the leap-q xlsx files
 TBD
 
