@@ -127,7 +127,10 @@ eye_table$lemma <- POS$lemma
 Frequencies are from the BNC.
 ```{r get_frequency, message=FALSE}
 frequency_df <- read_delim(here("01_data", "lemma.al.txt"), delim = " ", col_names = c("sort-order", "frequency", "word", "word-class"))
+
 frequency_whole <- read.csv(here("01_data", "whole_frequency_list.csv"))
+frequency_spoken <- read.csv(here("01_data", "spoken_frequency_list.csv"))
+frequency_written <- read.csv(here("01_data", "written_frequency_list.csv"))
 ```
 
 conj (conjunction)            34 
