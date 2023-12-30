@@ -37,20 +37,23 @@ text1_to_4 <- rbind(text1, text2, text3, text4)
 
 ### Means and Medians 
 #### Across all readers
-```{r means_all}
+```{r calc_all}
 text1$dur[is.na(text1$dur)] <- 0
 text1 %>%
   group_by(token, tokenindex) %>%
   summarise(meanDurAll = mean(dur), medianDurAll = median(dur))
 ```
 
-```{r}
-text1 %>%
+```{r calc_language}
+result <- text1 %>%
     group_by(tokenindex, lang, token) %>%
     summarise(medianDur = median(dur)) %>%
     spread(lang, medianDur, sep = "_")
 ```
 
+```{r join_results}
+text1_with_median <- left_join(text1, result, by = c("token", "tokenindex"))
+```
 
 ## Correlation
 **Note:** This uses the AAPz values. In this case, the stopwords also contain valency scores due to the AAPz. 
