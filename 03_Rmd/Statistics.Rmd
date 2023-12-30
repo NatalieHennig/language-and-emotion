@@ -35,16 +35,21 @@ text1_to_4 <- rbind(text1, text2, text3, text4)
 ```
 
 
-### Means 
+### Means and Medians 
 #### Across all readers
 ```{r means_all}
 text1$dur[is.na(text1$dur)] <- 0
-text1 %>% group_by(token, tokenindex) %>% summarise(meanDurAll=(mean(dur)))
+text1 %>%
+  group_by(token, tokenindex) %>%
+  summarise(meanDurAll = mean(dur), medianDurAll = median(dur))
 ```
 
-#### L1 vs L2
-
-### Median
+```{r}
+text1 %>%
+    group_by(tokenindex, lang, token) %>%
+    summarise(medianDur = median(dur)) %>%
+    spread(lang, medianDur, sep = "_")
+```
 
 
 ## Correlation
