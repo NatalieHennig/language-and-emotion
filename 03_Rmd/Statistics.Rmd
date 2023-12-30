@@ -35,8 +35,21 @@ text1_to_4 <- rbind(text1, text2, text3, text4)
 ```
 
 
+### Means 
+#### Across all readers
+```{r means_all}
+text1$dur[is.na(text1$dur)] <- 0
+text1 %>% group_by(token, tokenindex) %>% summarise(meanDurAll=(mean(dur)))
+```
+
+#### L1 vs L2
+
+### Median
+
+
 ## Correlation
-**Note:** This uses the AAPz values. Stopwords must be set to 0!
+**Note:** This uses the AAPz values. In this case, the stopwords also contain valency scores due to the AAPz. 
+TODO: What is the correlation when the valency score for stopwords is set to 0?
 
 ```{r correlation}
 duration[is.na(duration)] <- 0
