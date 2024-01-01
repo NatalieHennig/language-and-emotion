@@ -132,7 +132,7 @@ frequency_written <- read.csv(here("01_data", "written_frequency_list.csv"))
 ```
 
 ```{r map_pos}
-source(here("04_scripts","CLAWS_tags.R"), local = knitr::knit_global())
+source(here("04_scripts","03_CLAWS_mapping.R"), local = knitr::knit_global())
 
 frequency_spoken <- process_frequency(frequency_spoken)
 print(frequency_spoken)
