@@ -55,6 +55,8 @@ result <- text1 %>%
 text1_with_median <- left_join(text1, result, by = c("token", "tokenindex"))
 ```
 
+
+
 ## Correlation
 **Note:** This uses the AAPz values. In this case, the stopwords also contain valency scores due to the AAPz. 
 TODO: What is the correlation when the valency score for stopwords is set to 0?
@@ -106,6 +108,27 @@ heatmap_plot <- ggplot(melted_data, aes(x = variable, y = lang, fill = value)) +
     theme_minimal()
 
 print(heatmap_plot)
+```
+
+
+Some exploratory median correlations:
+```{r median_correlation}
+cor(text1_with_median$lang_du, text1_with_median$word_length)
+cor(text1_with_median$lang_en, text1_with_median$word_length)
+
+cor(text1_with_median$lang_du, text1_with_median$AAPz)
+cor(text1_with_median$lang_en, text1_with_median$AAPz)
+
+cor(text1_with_median$lang_du, text1_with_median$frequency)
+cor(text1_with_median$lang_en, text1_with_median$frequency)
+
+cor(text1_with_median$AAPz, text1_with_median$frequency)
+cor(text1_with_median$AAPz, text1_with_median$frequency)
+
+cor(text1_with_median$AAPz, text1_with_median$word_length)
+cor(text1_with_median$AAPz, text1_with_median$word_length)
+
+lm(lang_ru ~ word_length + word_frequency + punctuation, data = text1_with_median)
 ```
 
 
