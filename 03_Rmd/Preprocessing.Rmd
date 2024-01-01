@@ -140,7 +140,9 @@ print(frequency_spoken)
 Duplicates are summed because there are multiple tags such as *AJ0* and *AJ0-NN1*, which both are changed to *ADJ*.
 
 ```{r add_frequency}
-eye_table <- left_join(eye_table, frequency_spoken, by = c("token" = "Word", "pos" = "mapped_pos")) %>%
+eye_table <- eye_table %>% mutate(token.lower = tolower(token))
+
+eye_table <- left_join(eye_table, frequency_spoken, by = c("token.lower" = "Word", "pos" = "mapped_pos")) %>%
   mutate(frequency = replace(frequency, is.na(frequency), 0))
 ```
 
