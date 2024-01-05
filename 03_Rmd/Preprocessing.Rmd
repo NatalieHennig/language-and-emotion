@@ -126,9 +126,9 @@ eye_table$lemma <- POS$lemma
 #### Word Frequency
 Frequencies are from the BNC. 
 ```{r get_frequency, message=FALSE}
-frequency_whole <- read.csv(here("01_data", "whole_frequency_list.csv"))
-frequency_spoken <- read.csv(here("01_data", "spoken_frequency_list.csv"))
-frequency_written <- read.csv(here("01_data", "written_frequency_list.csv"))
+frequency_whole <- read.csv(here("01_data", "frequency", "whole_frequency_list.csv"))
+frequency_spoken <- read.csv(here("01_data", "frequency", "spoken_frequency_list.csv"))
+frequency_written <- read.csv(here("01_data","frequency", "written_frequency_list.csv"))
 ```
 
 ```{r map_pos}
