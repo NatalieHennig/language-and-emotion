@@ -394,6 +394,25 @@ print(language_counts)
 ```
 
 
-# Prepare the leap-q xlsx files
-TBD
+# Individual Differences 
+```{r load_id_files}
+load(here("01_data", "meco L2", "primary data","comprehension data","joint_l2_acc_full_breakdown.rda"))
+load(here("01_data", "meco L2", "primary data","individual differences data","joint.ind.diff.l2.rda"))
+
+comprehension <- comp.long
+id_tests <- joint_id
+leap_q <- read_xlsx(here("01_data", "Leap_Q_combined.xlsx"), sheet = 2)
+```
+
+## LEAP-Q and Tests
+```{r}
+
+```
+
+
+## Comprehension
+```{r}
+
+```
+
 
