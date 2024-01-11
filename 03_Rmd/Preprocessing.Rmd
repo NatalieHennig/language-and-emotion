@@ -374,10 +374,23 @@ print(counts_of_1)
 ```
 Texts 1, 2, 3, and 4 have over 400 participants.
 
-```{r}
+```{r texts_read}
 subset_overlap <- select(overlap, c("participant_id", "1", "2", "3", "4"))
 
 subset_texts <- subset_overlap %>% filter(across(-1, ~. == 1))
+print(subset_texts)
+```
+```{r lang_count}
+# Create a new column for language
+subset_texts <- subset_texts %>%
+  mutate(language = substr(participant_id, 1, 2))
+
+# Count participants for each language
+language_counts <- subset_texts %>%
+  group_by(language) %>%
+  summarise(participant_count = n())
+
+print(language_counts)
 ```
 
 
