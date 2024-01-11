@@ -415,7 +415,27 @@ Calculate accuracy for questions 1-4 (**number**), assuming that they correspond
 ```{r calculate_accuracy}
 comprehension <- comprehension_raw %>% select(c("uniform_id", "number", "QUESTIONNUM", "ACCURACY"))
 
+# Only keep numbers 1-4
+comprehension <- comprehension[comprehension$number %in% c('1', '2', '3', '4'), ]
+
+# Calculate the comprehension accuracy in %
+comprehension_acc <- comprehension %>%
+  group_by(uniform_id) %>%
+  summarize(
+    total_answer = n(),
+    correct_answer = sum(ACCURACY),
+    accuracy = (correct_answer / total_answer)*100
+  )
+
+
 rm(comprehension_raw)
 ```
 
+
+58 participants have a comprehension score of less than 50% for texts 1-4.
+```{r get_participants_low_acc}
+comprehension_acc %>% filter(accuracy < 50.0) %>% 
+  select(uniform_id) %>%
+  distinct()
+```
 
