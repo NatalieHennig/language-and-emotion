@@ -399,7 +399,7 @@ print(language_counts)
 load(here("01_data", "meco L2", "primary data","comprehension data","joint_l2_acc_full_breakdown.rda"))
 load(here("01_data", "meco L2", "primary data","individual differences data","joint.ind.diff.l2.rda"))
 
-comprehension <- comp.long
+comprehension_raw <- comp.long
 id_tests <- joint_id
 leap_q <- read_xlsx(here("01_data", "Leap_Q_combined.xlsx"), sheet = 2)
 ```
@@ -411,8 +411,11 @@ leap_q <- read_xlsx(here("01_data", "Leap_Q_combined.xlsx"), sheet = 2)
 
 
 ## Comprehension
-```{r}
+Calculate accuracy for questions 1-4 (**number**), assuming that they correspond to texts 1-4. *TODO: Verify!!*
+```{r calculate_accuracy}
+comprehension <- comprehension_raw %>% select(c("uniform_id", "number", "QUESTIONNUM", "ACCURACY"))
 
+rm(comprehension_raw)
 ```
 
 
