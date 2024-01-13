@@ -434,8 +434,19 @@ rm(comprehension_raw)
 
 58 participants have a comprehension score of less than 50% for texts 1-4.
 ```{r get_participants_low_acc}
-comprehension_acc %>% filter(accuracy < 50.0) %>% 
+low_accuracy <- comprehension_acc %>% filter(accuracy < 50.0) %>% 
   select(uniform_id) %>%
   distinct()
+```
+
+```{r}
+result <- subset_texts %>%
+  anti_join(low_accuracy, by = c("participant_id" = "uniform_id"))
+
+language_counts <- result %>%
+  group_by(language) %>%
+  summarise(participant_count = n())
+
+print(language_counts)
 ```
 
