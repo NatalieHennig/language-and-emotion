@@ -18,7 +18,7 @@ reading_time <- read_csv(here("05_output", "reading_times.csv"), col_names=TRUE,
 
 ```{r select_textnr}
 article <- reading_time %>% filter(textnr == 1)
-article <- reading_time
+#article <- reading_time
 ```
 
 
@@ -50,18 +50,17 @@ article %>%
   summarise(meanDurAll = mean(dur), medianDurAll = median(dur))
 ```
 
+Median duration of each token for each language group-
 ```{r calc_language}
-result <- article %>%
+median_duration <- article %>%
     group_by(tokenindex, lang, token) %>%
     summarise(medianDur = median(dur)) %>%
     spread(lang, medianDur, sep = "_")
 ```
 
 ```{r join_results}
-median_article <- left_join(article, result, by = c("token", "tokenindex"))
+article <- left_join(article, median_duration, by = c("token", "tokenindex"))
 ```
-
-
 
 ## Correlation
 **Note:** This uses the AAPz values. In this case, the stopwords also contain valency scores due to the AAPz. 
@@ -101,22 +100,22 @@ print(cor_by_language)
 
 Some exploratory median correlations:
 ```{r median_correlation}
-cor(median_article$lang_he, median_article$word_length)
-cor(median_article$lang_en, median_article$word_length)
+cor(article$lang_he, article$word_length)
+cor(article$lang_en, article$word_length)
 
-cor(median_article$lang_he, median_article$AAPz)
-cor(median_article$lang_en, median_article$AAPz)
+cor(article$lang_he, article$AAPz)
+cor(article$lang_en, article$AAPz)
 
-cor(median_article$lang_he, median_article$frequency)
-cor(median_article$lang_en, median_article$frequency)
+cor(article$lang_he, article$frequency)
+cor(article$lang_en, article$frequency)
 
-cor(median_article$AAPz, median_article$frequency)
-cor(median_article$AAPz, median_article$frequency)
+cor(article$AAPz, article$frequency)
+cor(article$AAPz, article$frequency)
 
-cor(median_article$AAPz, median_article$word_length)
-cor(median_article$AAPz, median_article$word_length)
+cor(article$AAPz, article$word_length)
+cor(article$AAPz, article$word_length)
 
-lm(lang_ru ~ word_length + word_frequency + punctuation, data = median_article)
+lm(lang_ru ~ word_length + word_frequency + punctuation, data = article)
 ```
 
 
@@ -145,21 +144,13 @@ log_duration[is.infinite(log_duration)] <- 0
 
 summary(lm(log_duration ~ valency))
 ```
-R^2 is 2.8%
+R^2 is 2.8% -> article 1 to 4
+R^2 is 3.4% -> article 1
 
 # Linear Mixed-Models
 Comment: Would need ANOVA to see which model is more significant
-```{r}
+```{r eval=FALSE, include=FALSE}
 summary(lmer(log_duration ~ valency + (1 + valency | word_length)))
-```
-
-```{r}
 summary(lmer(log_duration ~ valency + (1 + valency | participant)))
-```
-
-```{r}
 summary(lmer(log_duration ~ valency + (1 + valency | participant) + (1 | word_length)))
 ```
-
-
-
