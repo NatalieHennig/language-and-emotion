@@ -128,7 +128,7 @@ cor(article$AAPz, article$frequency)
 cor(article$AAPz, article$word_length)
 cor(article$AAPz, article$word_length)
 
-lm(lang_ru ~ word_length + word_frequency + punctuation, data = article)
+summary(lm(lang_ru ~ word_length + word_frequency + punctuation + valency, data = article))
 ```
 
 ## Regression
@@ -138,17 +138,12 @@ COMMENT: multifactorial linear regression analysis (multiple factors - see which
 - draw up a maximum model based on what is expected from the literature, 1 code per RQ -> send per email, then weed out the insignificant variables
 ```{r}
 summary(lm(duration ~ valency))
-```
-
-
-```{r log_transform}
-# Replace Inf and -Inf values with 0
-log_duration[is.infinite(log_duration)] <- 0
 
 summary(lm(log_duration ~ valency))
 ```
-R^2 is 2.8% -> article 1 to 4
-R^2 is 3.4% -> article 1
+log-transformed duration:
+- R^2 is 2.8% -> article 1 to 4
+- R^2 is 3.4% -> article 1
 
 # Linear Mixed-Models
 Comment: Would need ANOVA to see which model is more significant
