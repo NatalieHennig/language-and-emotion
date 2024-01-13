@@ -458,7 +458,27 @@ subset_texts %>%
 rm(low_accuracy)
 ```
 
-```{r}
+```{r remove_text_dfs}
 rm(text5,text6, text7, text8, text9, text10, text11, text12)
+```
+
+
+# Prepare dataframes for export
+```{r concatenate_texts}
+reading_time_data <- bind_rows(text1, text2, text3, text4)
+```
+
+```{r remove_participants}
+filtered_reading_time_data <- reading_time_data %>%
+  filter(participant_id %in% subset_texts$participant_id)
+
+# Remove lang du, tr, gr
+filtered_reading_time_data <- filtered_reading_time_data %>%
+  filter(!(lang %in% c("du", "gr", "tr")))
+```
+
+
+```{r export}
+write.csv(filtered_reading_time_data, here("05_output", "reading_times.csv"))
 ```
 
