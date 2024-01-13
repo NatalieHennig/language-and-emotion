@@ -97,22 +97,6 @@ article %>%
 print(cor_by_language)
 ```
 
-```{r cor_heatmap}
-# Melt the data for easier plotting
-melted_data = melt(cor_by_language, id.vars = "lang")
-
-# Use the absolute values of correlations
-melted_data$value = abs(melted_data$value)
-
-ggplot(melted_data, aes(x = variable, y = lang, fill = value)) +
-    geom_tile(color = "white") +
-    scale_fill_gradient2(low = "red", mid = "yellow", high = "blue", midpoint = 0, guide = "colorbar") +
-    labs(title = "Correlation Heatmap",
-         x = "Variables",
-         y = "Language Groups") +
-    theme_minimal()
-```
-
 
 Some exploratory median correlations:
 ```{r median_correlation}
