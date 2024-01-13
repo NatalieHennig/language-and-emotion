@@ -11,26 +11,32 @@ library(readr)
 library(here)
 ```
 
-## Declare variables
+
 ```{r load_data, message=FALSE}
-reading_time <- read_csv(here("05_output", "reading_times.csv"), col_names=TRUE, id=NULL)
+RT_data <- read_csv(here("05_output", "reading_times.csv"), col_names=TRUE, id=NULL)
 ```
 
+## Declare variables
 ```{r select_textnr}
-article <- reading_time %>% filter(textnr == 1)
-#article <- reading_time
+article <- RT_data %>% filter(textnr == 1)
+#article <- RT_data
 ```
 
+```{r dependent_var}
+article <- article %>% mutate(log_dur = log(dur)) # log transform
 
-```{r variables}
-# dependent variable
 duration = article$dur
-log_duration = log(duration)
+log_duration = article$log_dur
 
-# independent variable
+article$dur[is.na(article$dur)] <- 0 # set NA to 0 
+article$log_dur[is.na(article$log_dur)] <- 0
+```
+
+```{r independent_var}
 valency = article$AAPz
+```
 
-# confounders
+```{r confounding_var}
 # lexical-level 
 word_length = article$word_length
 word_frequency = article$frequency
@@ -41,10 +47,20 @@ POS = article$pos
 participant = article$participant_id
 ```
 
+
+### Log-Transformation
+Note: Values that are *NA* must be dealt with. There are multiple options for handling missing values. 
+While they could be removed, this would lead to a loss of data.  
+Another approach is to set it to a very low value, for example 1ms.
+```{r}
+hist(duration)
+hist(log_duration)
+```
+
+
 ### Means and Medians 
 #### Across all readers
 ```{r calc_all}
-article$dur[is.na(article$dur)] <- 0
 article %>%
   group_by(token, tokenindex) %>%
   summarise(meanDurAll = mean(dur), medianDurAll = median(dur))
@@ -60,6 +76,7 @@ median_duration <- article %>%
 
 ```{r join_results}
 article <- left_join(article, median_duration, by = c("token", "tokenindex"))
+rm(median_duration)
 ```
 
 ## Correlation
@@ -83,18 +100,14 @@ Error in UseMethod("group_by") :
 ```
 
 ```{r correlation_by_participant}
-article$dur[is.na(article$dur)] <- 0
-
 article %>%
   group_by(participant_id) %>%
   summarise(cor_valency=cor(AAPz, dur), cor_length=cor(word_length, dur), cor_frequency=cor(frequency, dur))
 ```
 ```{r correlation_by_language}
- cor_by_language <- article %>%
+article %>%
   group_by(lang) %>%
   summarise(cor_valency=cor(AAPz, dur), cor_length=cor(word_length, dur), cor_frequency=cor(frequency, dur))
-
-print(cor_by_language)
 ```
 
 
@@ -116,16 +129,6 @@ cor(article$AAPz, article$word_length)
 cor(article$AAPz, article$word_length)
 
 lm(lang_ru ~ word_length + word_frequency + punctuation, data = article)
-```
-
-
-### Log-Transformation
-Note: Values that are *NA* must be dealt with. There are multiple options for handling missing values. 
-While they could be removed, this would lead to a loss of data.  
-Another approach is to set it to a very low value, for example 1ms.
-```{r}
-hist(duration)
-hist(log_duration)
 ```
 
 ## Regression
