@@ -459,7 +459,7 @@ rm(low_accuracy)
 ```
 
 ```{r remove_text_dfs}
-rm(text5,text6, text7, text8, text9, text10, text11, text12)
+rm(text1, text2, text3, text4,text5,text6, text7, text8, text9, text10, text11, text12)
 ```
 
 
@@ -480,5 +480,10 @@ filtered_reading_time_data <- filtered_reading_time_data %>%
 
 ```{r export}
 write.csv(filtered_reading_time_data, here("05_output", "reading_times.csv"), row.names = FALSE)
+```
+
+```{r}
+rm(comprehension_acc, leap_q, id_tests)
+rm(eye_table, subset_texts, reading_time_data, filtered_reading_time_data)
 ```
 

@@ -5,23 +5,24 @@
 library(lme4)
 library(ggplot2)
 library(reshape2)
+library(dplyr)
+library(tidyr)
+library(readr)
+library(here)
 ```
 
 ## Declare variables
-```{r}
-rm(comprehension_acc, leap_q, id_tests)
-rm(eye_table, subset_texts, reading_time_data, filtered_reading_time_data, text2, text3, text4)
+```{r load_data, message=FALSE}
+reading_time <- read_csv(here("05_output", "reading_times.csv"), col_names=TRUE, id=NULL)
 ```
 
-```{r data}
-reading_time <- read_csv(here("05_output", "reading_times.csv"), col_names=TRUE, id=NULL)
+```{r select_textnr}
+article <- reading_time %>% filter(textnr == 1)
+article <- reading_time
 ```
 
 
 ```{r variables}
-# data
-article <- text1 %>% select(-c(nfix, refix))
-
 # dependent variable
 duration = article$dur
 log_duration = log(duration)
@@ -43,21 +44,21 @@ participant = article$participant_id
 ### Means and Medians 
 #### Across all readers
 ```{r calc_all}
-text1$dur[is.na(text1$dur)] <- 0
-text1 %>%
+article$dur[is.na(article$dur)] <- 0
+article %>%
   group_by(token, tokenindex) %>%
   summarise(meanDurAll = mean(dur), medianDurAll = median(dur))
 ```
 
 ```{r calc_language}
-result <- text1 %>%
+result <- article %>%
     group_by(tokenindex, lang, token) %>%
     summarise(medianDur = median(dur)) %>%
     spread(lang, medianDur, sep = "_")
 ```
 
 ```{r join_results}
-text1_with_median <- left_join(text1, result, by = c("token", "tokenindex"))
+median_article <- left_join(article, result, by = c("token", "tokenindex"))
 ```
 
 
@@ -100,22 +101,22 @@ print(cor_by_language)
 
 Some exploratory median correlations:
 ```{r median_correlation}
-cor(text1_with_median$lang_du, text1_with_median$word_length)
-cor(text1_with_median$lang_en, text1_with_median$word_length)
+cor(median_article$lang_he, median_article$word_length)
+cor(median_article$lang_en, median_article$word_length)
 
-cor(text1_with_median$lang_du, text1_with_median$AAPz)
-cor(text1_with_median$lang_en, text1_with_median$AAPz)
+cor(median_article$lang_he, median_article$AAPz)
+cor(median_article$lang_en, median_article$AAPz)
 
-cor(text1_with_median$lang_du, text1_with_median$frequency)
-cor(text1_with_median$lang_en, text1_with_median$frequency)
+cor(median_article$lang_he, median_article$frequency)
+cor(median_article$lang_en, median_article$frequency)
 
-cor(text1_with_median$AAPz, text1_with_median$frequency)
-cor(text1_with_median$AAPz, text1_with_median$frequency)
+cor(median_article$AAPz, median_article$frequency)
+cor(median_article$AAPz, median_article$frequency)
 
-cor(text1_with_median$AAPz, text1_with_median$word_length)
-cor(text1_with_median$AAPz, text1_with_median$word_length)
+cor(median_article$AAPz, median_article$word_length)
+cor(median_article$AAPz, median_article$word_length)
 
-lm(lang_ru ~ word_length + word_frequency + punctuation, data = text1_with_median)
+lm(lang_ru ~ word_length + word_frequency + punctuation, data = median_article)
 ```
 
 
@@ -134,7 +135,7 @@ COMMENT: multifactorial linear regression analysis (multiple factors - see which
 - begin with step-down 
 - draw up a maximum model based on what is expected from the literature, 1 code per RQ -> send per email, then weed out the insignificant variables
 ```{r}
-lm(duration ~ valency)
+summary(lm(duration ~ valency))
 ```
 
 
@@ -142,24 +143,22 @@ lm(duration ~ valency)
 # Replace Inf and -Inf values with 0
 log_duration[is.infinite(log_duration)] <- 0
 
-result <- lm(log_duration ~ valency)
-summary(result)
+summary(lm(log_duration ~ valency))
 ```
+R^2 is 2.8%
 
+# Linear Mixed-Models
 Comment: Would need ANOVA to see which model is more significant
 ```{r}
-result <- lmer(log_duration ~ valency + (1 + valency | word_length))
-summary(result)
+summary(lmer(log_duration ~ valency + (1 + valency | word_length)))
 ```
 
 ```{r}
-result <- lmer(log_duration ~ valency + (1 + valency | participant))
-summary(result)
+summary(lmer(log_duration ~ valency + (1 + valency | participant)))
 ```
 
 ```{r}
-result <- lmer(log_duration ~ valency + (1 + valency | participant) + (1 | word_length))
-summary(result)
+summary(lmer(log_duration ~ valency + (1 + valency | participant) + (1 | word_length)))
 ```
 
 
