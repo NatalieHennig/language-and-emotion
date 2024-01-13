@@ -479,6 +479,6 @@ filtered_reading_time_data <- filtered_reading_time_data %>%
 
 
 ```{r export}
-write.csv(filtered_reading_time_data, here("05_output", "reading_times.csv"))
+write.csv(filtered_reading_time_data, here("05_output", "reading_times.csv"), row.names = FALSE)
 ```
 

@@ -8,6 +8,16 @@ library(reshape2)
 ```
 
 ## Declare variables
+```{r}
+rm(comprehension_acc, leap_q, id_tests)
+rm(eye_table, subset_texts, reading_time_data, filtered_reading_time_data, text2, text3, text4)
+```
+
+```{r data}
+reading_time <- read_csv(here("05_output", "reading_times.csv"), col_names=TRUE, id=NULL)
+```
+
+
 ```{r variables}
 # data
 article <- text1 %>% select(-c(nfix, refix))
@@ -29,11 +39,6 @@ POS = article$pos
 # participant-level
 participant = article$participant_id
 ```
-
-```{r concatenate_tables}
-text1_to_4 <- rbind(text1, text2, text3, text4)
-```
-
 
 ### Means and Medians 
 #### Across all readers
@@ -69,7 +74,7 @@ cor(word_frequency, duration)
 cor(valency, duration)
 ```
 
-with article set to **text1_to_4**
+with article set to **reading_time**
 ```
 group_by(participant) %>%
 +     summarize(cor=cor(valency, duration))
@@ -94,20 +99,18 @@ print(cor_by_language)
 
 ```{r cor_heatmap}
 # Melt the data for easier plotting
-melted_data <- melt(cor_by_language, id.vars = "lang")
+melted_data = melt(cor_by_language, id.vars = "lang")
 
 # Use the absolute values of correlations
-melted_data$value <- abs(melted_data$value)
+melted_data$value = abs(melted_data$value)
 
-heatmap_plot <- ggplot(melted_data, aes(x = variable, y = lang, fill = value)) +
+ggplot(melted_data, aes(x = variable, y = lang, fill = value)) +
     geom_tile(color = "white") +
     scale_fill_gradient2(low = "red", mid = "yellow", high = "blue", midpoint = 0, guide = "colorbar") +
     labs(title = "Correlation Heatmap",
          x = "Variables",
          y = "Language Groups") +
     theme_minimal()
-
-print(heatmap_plot)
 ```
 
 
