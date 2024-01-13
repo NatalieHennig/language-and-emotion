@@ -390,14 +390,12 @@ subset_texts <- subset_texts %>%
   mutate(language = substr(participant_id, 1, 2))
 
 # Count participants for each language
-language_counts <- subset_texts %>%
+subset_texts %>%
   group_by(language) %>%
   summarise(participant_count = n())
-
-print(language_counts)
 ```
 ```{r}
-#rm(subset_overlap, all_texts, )
+rm(overlap, all_texts, subset_overlap)
 ```
 
 
