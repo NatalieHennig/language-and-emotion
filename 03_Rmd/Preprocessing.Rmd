@@ -146,6 +146,10 @@ eye_table <- left_join(eye_table, frequency_spoken, by = c("token.lower" = "Word
   mutate(frequency = replace(frequency, is.na(frequency), 0))
 ```
 
+```{r remove_freq_dfs}
+rm(frequency_spoken, frequency_written, frequency_whole)
+```
+
 
 #### Calculate frequency per million words
 The BNC CQP-Web version contains 98,313,429 tokens.
@@ -352,6 +356,7 @@ rm("merger", "POS", "texts_listed", "vader_scores", "joint.data", "text_df", "te
 ```{r get_overlap}
 overlap <- unique(select(eye_table, c(participant_id, textnr)))
 
+# Add column value with values set to 1
 overlap <- overlap %>% mutate(value = 1)
 
 overlap <- overlap %>%
@@ -359,25 +364,24 @@ overlap <- overlap %>%
 ```
 
 ```{r participants_all_text}
-all_texts <- overlap %>% filter(across(-1, ~. == 1))
+all_texts <- overlap %>%
+  filter(if_all(all_of(names(.)[-1]), ~. == 1))
 ```
-There are only 94 participants who have read all 12 texts. In contrast, 288 participants have read texts 1,2, 3, and 4 (see below).
+There are only 89 participants who have read all 12 texts. In contrast, 251 participants have read texts 1,2, 3, and 4 (see below).
 
 ```{r count_texts_read}
 # Count occurrences of "1" in each numeric column except the first one
-counts_of_1 <- overlap %>%
+overlap %>%
   select(-participant_id) %>%
   ungroup() %>%
   summarise(across(everything(), ~sum(. == 1, na.rm = TRUE)))
-
-print(counts_of_1)
 ```
 Texts 1, 2, 3, and 4 have over 400 participants.
 
 ```{r texts_read}
 subset_overlap <- select(overlap, c("participant_id", "1", "2", "3", "4"))
 
-subset_texts <- subset_overlap %>% filter(across(-1, ~. == 1))
+subset_texts <- subset_overlap %>% filter(if_all(all_of(names(.)[-1]), ~. == 1))
 print(subset_texts)
 ```
 ```{r lang_count}
@@ -392,6 +396,9 @@ language_counts <- subset_texts %>%
 
 print(language_counts)
 ```
+```{r}
+#rm(subset_overlap, all_texts, )
+```
 
 
 # Individual Differences 
@@ -402,6 +409,8 @@ load(here("01_data", "meco L2", "primary data","individual differences data","jo
 comprehension_raw <- comp.long
 id_tests <- joint_id
 leap_q <- read_xlsx(here("01_data", "Leap_Q_combined.xlsx"), sheet = 2)
+
+rm(comp.long, joint_id)
 ```
 
 ## LEAP-Q and Tests
@@ -428,25 +437,30 @@ comprehension_acc <- comprehension %>%
   )
 
 
-rm(comprehension_raw)
+rm(comprehension_raw, comprehension)
 ```
 
 
-58 participants have a comprehension score of less than 50% for texts 1-4.
+58 participants have a comprehension score of less than 50% for texts 1-4. **low_accuracy** returns the participant ids.
 ```{r get_participants_low_acc}
 low_accuracy <- comprehension_acc %>% filter(accuracy < 50.0) %>% 
   select(uniform_id) %>%
   distinct()
 ```
 
-```{r}
-result <- subset_texts %>%
+Participants that have an accuarcy below 50% are removed from the participant pool.
+```{r participants}
+subset_texts <- subset_texts %>%
   anti_join(low_accuracy, by = c("participant_id" = "uniform_id"))
 
-language_counts <- result %>%
+subset_texts %>%
   group_by(language) %>%
   summarise(participant_count = n())
 
-print(language_counts)
+rm(low_accuracy)
+```
+
+```{r}
+rm(text5,text6, text7, text8, text9, text10, text11, text12)
 ```
 
