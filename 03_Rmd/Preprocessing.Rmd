@@ -42,6 +42,7 @@ library(tm)
 library(stringr)
 library(readxl)
 library(readr)
+library(tidyverse)
 use_condaenv("thesis23")
 ```
 **Note** Created a conda environment within the language-and-emotion project file *./thesis23*.
@@ -411,12 +412,6 @@ leap_q <- read_xlsx(here("01_data", "Leap_Q_combined.xlsx"), sheet = 2)
 rm(comp.long, joint_id)
 ```
 
-## LEAP-Q and Tests
-```{r}
-
-```
-
-
 ## Comprehension
 Calculate accuracy for questions 1-4 (**number**), assuming that they correspond to texts 1-4. *TODO: Verify!!*
 ```{r calculate_accuracy}
@@ -439,6 +434,22 @@ rm(comprehension_raw, comprehension)
 ```
 
 
+Combined files of leap-q, the tests and comprehension data. Comprehension data is preprocessed and only includes accuracy for 1-4.
+**Note**: The leap-q file is missing 5 participants: 
+- *en_90*
+- *ru_2*
+- *ru_4*
+- *ru_8*
+- *ru_9*
+This is not a mistake in the code - they are not in the respective excel files.
+```{r combine_ids, warning=FALSE}
+individual_diffs <- list(comprehension_acc, id_tests, leap_q)      
+individual_diffs <- individual_diffs %>% reduce(full_join, by='uniform_id')
+
+individual_diffs <- individual_diffs %>% select(-c(total_answer, correct_answer, subid)) %>% rename(participant_id = uniform_id, comprehension_acc = accuracy) %>% mutate(start_learning = as.integer(start_learning), fluent = as.integer(fluent), reading = as.integer(reading), reading_fluent = as.integer(reading_fluent)) %>% select(participant_id, lang, everything())
+```
+
+
 58 participants have a comprehension score of less than 50% for texts 1-4. **low_accuracy** returns the participant ids.
 ```{r get_participants_low_acc}
 low_accuracy <- comprehension_acc %>% filter(accuracy < 50.0) %>% 
@@ -458,11 +469,6 @@ subset_texts %>%
 rm(low_accuracy)
 ```
 
-```{r remove_text_dfs}
-rm(text1, text2, text3, text4,text5,text6, text7, text8, text9, text10, text11, text12)
-```
-
-
 # Prepare dataframes for export
 ```{r concatenate_texts}
 reading_time_data <- bind_rows(text1, text2, text3, text4)
@@ -477,9 +483,14 @@ filtered_reading_time_data <- filtered_reading_time_data %>%
   filter(!(lang %in% c("du", "gr", "tr")))
 ```
 
-
+**filtered_reading_time_data** and **individual_diffs** are the preprocessed datafiles.
 ```{r export}
 write.csv(filtered_reading_time_data, here("05_output", "reading_times.csv"), row.names = FALSE)
+```
+
+
+```{r remove_text_dfs}
+rm(text1, text2, text3, text4,text5,text6, text7, text8, text9, text10, text11, text12)
 ```
 
 ```{r}
