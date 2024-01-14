@@ -24,8 +24,8 @@ length(unique(RT_data$participant_id))
 
 ## Declare variables
 ```{r select_textnr}
-article <- RT_data %>% filter(textnr == 1)
-#article <- RT_data
+#article <- RT_data %>% filter(textnr == 1)
+article <- RT_data
 ```
 
 ```{r dependent_var}
