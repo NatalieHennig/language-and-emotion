@@ -16,6 +16,12 @@ library(here)
 RT_data <- read_csv(here("05_output", "reading_times.csv"), col_names=TRUE, id=NULL)
 ```
 
+```{r participant_count}
+aggregate(participant_id ~ lang, data = RT_data, FUN = function(x) length(unique(x)))
+length(unique(RT_data$participant_id))
+```
+
+
 ## Declare variables
 ```{r select_textnr}
 article <- RT_data %>% filter(textnr == 1)
