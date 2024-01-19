@@ -53,6 +53,18 @@ POS = article$pos
 participant = article$participant_id
 ```
 
+How do I get bigrams?
+```{r surprisal, eval=FALSE, include=FALSE}
+bnc_size = 97626093
+
+article <- article %>% 
+  mutate(
+    word = frequency,
+    previous_word = lag(frequency),
+    conditional_prob = 0,
+    bigram_surprisal = log(1 / (word / bnc_size)) + log(1 / conditional_prob)
+  )
+```
 
 ### Log-Transformation
 Note: Values that are *NA* must be dealt with. There are multiple options for handling missing values. 

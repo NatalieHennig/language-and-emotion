@@ -446,7 +446,7 @@ This is not a mistake in the code - they are not in the respective excel files.
 individual_diffs <- list(comprehension_acc, id_tests, leap_q)      
 individual_diffs <- individual_diffs %>% reduce(full_join, by='uniform_id')
 
-individual_diffs <- individual_diffs %>% select(-c(total_answer, correct_answer, subid)) %>% rename(participant_id = uniform_id, comprehension_acc = accuracy) %>% mutate(start_learning = as.integer(start_learning), fluent = as.integer(fluent), reading = as.integer(reading), reading_fluent = as.integer(reading_fluent)) %>% select(participant_id, lang, everything())
+individual_diffs <- individual_diffs %>% select(-c(total_answer, correct_answer, subid, lang)) %>% rename(participant_id = uniform_id, comprehension_acc = accuracy) %>% mutate(start_learning = as.integer(start_learning), fluent = as.integer(fluent), reading = as.integer(reading), reading_fluent = as.integer(reading_fluent)) %>% select(participant_id, everything())
 ```
 
 
@@ -469,7 +469,7 @@ subset_texts %>%
 rm(low_accuracy)
 ```
 
-# Prepare dataframes for export
+# Prepare dataframes for export and merge with individual differences
 ```{r concatenate_texts}
 reading_time_data <- bind_rows(text1, text2, text3, text4)
 ```
@@ -481,9 +481,11 @@ filtered_reading_time_data <- reading_time_data %>%
 # Remove lang du, tr, gr
 filtered_reading_time_data <- filtered_reading_time_data %>%
   filter(!(lang %in% c("du", "gr", "tr")))
+
+filtered_reading_time_data <- filtered_reading_time_data %>% left_join(individual_diffs, by="participant_id")
 ```
 
-**filtered_reading_time_data** and **individual_diffs** are the preprocessed datafiles.
+**filtered_reading_time_data** is the preprocessed datafile.
 ```{r export}
 write.csv(filtered_reading_time_data, here("05_output", "reading_times.csv"), row.names = FALSE)
 ```
