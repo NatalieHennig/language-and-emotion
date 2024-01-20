@@ -11,7 +11,6 @@ library(readr)
 library(here)
 ```
 
-
 ```{r load_data, message=FALSE}
 RT_data <- read_csv(here("05_output", "reading_times.csv"), col_names=TRUE, id=NULL)
 ```
@@ -64,6 +63,10 @@ article <- article %>%
     conditional_prob = 0,
     bigram_surprisal = log(1 / (word / bnc_size)) + log(1 / conditional_prob)
   )
+```
+
+```{r}
+article <- article %>% mutate(L1 = ifelse(lang == "en", 1, 0))
 ```
 
 ### Log-Transformation
