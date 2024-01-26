@@ -111,8 +111,23 @@ rm(median_duration)
 
 ## Mean Duration 
 ```{r mean_lang}
-article %>% group_by(lang) %>% summarize(mean_duration = mean(dur))
+article %>% group_by(lang) %>% summarize(mean_duration = mean(dur), standard_deviation = sd(dur))
 ```
+
+```{r}
+# Basic boxplot
+#boxplot(article$dur ~ article$lang , col=terrain.colors(9))
+
+ggplot(article, aes(x = lang, y = dur, fill = lang)) +
+  geom_boxplot() +
+  scale_y_continuous(limits = c(0, 1000)) +
+  scale_fill_manual(values = terrain.colors(9)) +
+  labs(title = "Boxplot of Duration by Language",
+       x = "Language",
+       y = "Duration")
+
+```
+
 
 ```{r mean_participant}
 df <- article %>% group_by(participant_id) %>% summarize(mean_duration = mean(dur), L1)
@@ -158,9 +173,8 @@ TODO: What is the correlation when the valency score for stopwords is set to 0?
 ```{r correlation}
 duration[is.na(duration)] <- 0
 
-cor(word_length,duration)
-cor(word_frequency, duration)
-cor(valency, duration)
+
+cat("Correlation", "\n","Word length:", cor(word_length,duration), "\n","Word frequency:", cor(word_frequency, duration), "\n","Valency:", cor(valency, duration))
 ```
 
 with article set to **reading_time**
@@ -172,14 +186,39 @@ Error in UseMethod("group_by") :
 ```
 
 ```{r correlation_by_participant}
-article %>%
+df3 <- article %>%
   group_by(participant_id) %>%
-  summarise(cor_valency=cor(AAPz, dur), cor_length=cor(word_length, dur), cor_frequency=cor(frequency, dur))
+  mutate(cor_valency=cor(AAPz, dur), cor_length=cor(word_length, dur), cor_frequency=cor(frequency, dur))
+
+print(df3)
 ```
+
+```{r corr_density}
+df3 <- df3 %>%
+  mutate(L1 = factor(L1, levels = c(0, 1), labels = c("L2", "L1")))
+
+ggplot(df3, aes(x = cor_valency, fill = L1)) +
+  geom_density(alpha = 0.5) +
+  labs(title = "Correlation between Valency and Duration by L1 and L2",
+       x = "Duration",
+       y = "Density") +
+  theme_minimal()
+```
+
+
 ```{r correlation_by_language}
 article %>%
   group_by(lang) %>%
   summarise(cor_valency=cor(AAPz, dur), cor_length=cor(word_length, dur), cor_frequency=cor(frequency, dur))
+```
+
+```{r}
+ggplot(df3, aes(x = lang, y = cor_valency, fill = lang)) +
+  geom_boxplot() +
+  scale_fill_manual(values = terrain.colors(9)) +
+  labs(title = "Boxplot of Correlation between Valency and Duration by Language",
+       x = "Language",
+       y = "Correlation")
 ```
 
 
