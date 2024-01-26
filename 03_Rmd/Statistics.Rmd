@@ -4,6 +4,7 @@
 ```{r message=FALSE, warning=FALSE}
 library(lme4)
 library(ggplot2)
+library(hrbrthemes)
 library(reshape2)
 library(dplyr)
 library(tidyr)
@@ -80,11 +81,19 @@ hist(log_duration)
 
 
 ### Means and Medians 
-#### Across all readers
+#### Across all readers for each word
 ```{r calc_all}
 article %>%
   group_by(token, tokenindex) %>%
   summarise(meanDurAll = mean(dur), medianDurAll = median(dur))
+
+df1 <- article %>%
+    group_by(token, tokenindex) %>%
+    mutate(meanDurAll = mean(dur), medianDurAll = median(dur)) %>%
+    ungroup()  # Ungroup to revert to default behavior
+
+# View the resulting data frame
+head(df1)
 ```
 
 Median duration of each token for each language group-
@@ -99,6 +108,48 @@ median_duration <- article %>%
 article <- left_join(article, median_duration, by = c("token", "tokenindex"))
 rm(median_duration)
 ```
+
+## Mean Duration 
+```{r mean_lang}
+article %>% group_by(lang) %>% summarize(mean_duration = mean(dur))
+```
+
+```{r mean_participant}
+df <- article %>% group_by(participant_id) %>% summarize(mean_duration = mean(dur), L1)
+
+df[df$mean_duration == max(df$mean_duration), ] # slowest reader
+df[df$mean_duration == min(df$mean_duration), ] # fastest reader
+
+```
+
+The following density plot shows the mean reading times for each participant split between L1 and L2.
+```{r density}
+df <- df %>%
+  mutate(L1 = factor(L1, levels = c(0, 1), labels = c("L2", "L1")))
+
+df <- unique(df)
+
+ggplot(df, aes(x = mean_duration, fill = L1)) +
+  geom_density(alpha = 0.5) +
+  labs(title = "Mean Reading Times between L1 and L2",
+       x = "Duration",
+       y = "Density") +
+  theme_minimal()
+```
+
+
+```{r}
+df1 <- df1 %>%
+  mutate(L1 = factor(L1, levels = c(0, 1), labels = c("L2", "L1")))
+
+ggplot(df1, aes(x = meanDurAll, fill = L1)) +
+  geom_density(alpha = 0.5) +
+  labs(title = "Mean Reading Times Per-Word between L1 and L2",
+       x = "Duration",
+       y = "Density") +
+  theme_minimal()
+```
+
 
 ## Correlation
 **Note:** This uses the AAPz values. In this case, the stopwords also contain valency scores due to the AAPz. 
@@ -165,6 +216,26 @@ summary(lm(log_duration ~ valency))
 log-transformed duration:
 - R^2 is 2.8% -> article 1 to 4
 - R^2 is 3.4% -> article 1
+
+```{r RQ1}
+summary(lm(duration ~ word_length + word_frequency + punctuation + valency + exposure_EN + cft20 + lextale + motiv + start_learning, data = article))
+summary(lm(duration ~ word_length + word_frequency + punctuation + valency + cft20 + lextale, data = article))
+summary(lm(duration ~ word_length + word_frequency + punctuation + exposure_EN + cft20 + lextale + motiv + start_learning, data = article))
+```
+```{r RQ2}
+summary(lm(duration ~ lang, data = article))
+summary(lm(duration ~ lang + valency, data = article))
+summary(lm(duration ~ word_length + word_frequency + punctuation + valency + exposure_EN + cft20 + lextale + motiv + start_learning + lang, data = article))
+model <- lm(duration ~ word_length + word_frequency + punctuation + valency + exposure_EN + cft20 + lextale + motiv + start_learning + lang + valency:lang, data = article)
+```
+
+
+```{r}
+summary(lm(duration ~ L1 + valency, data = article))
+summary(lm(duration ~ word_length, data = article))
+summary(lm(duration ~ L1 + valency + L1:valency, data = article))
+```
+
 
 # Linear Mixed-Models
 Comment: Would need ANOVA to see which model is more significant
