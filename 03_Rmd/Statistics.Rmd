@@ -28,6 +28,17 @@ length(unique(RT_data$participant_id))
 article <- RT_data
 ```
 
+
+"As regards very long fixations, deletion (but not merger) is also common. Eye-tracking researchers generally remove fixations longer than 800 ms, as recommended by Conklin and Pellicer-Sánchez (2016) and Keating (2014), because these fixations are believed to signal a lapse in attention." (Godfroid 2020: 261)
+```{r outlier}
+# Cap the values in the dur column to a maximum of 800
+#article$dur <- pmin(article$dur, 800)
+
+# Remove duration over 800
+#article <- article[article$dur <= 800, ]
+```
+
+
 ```{r dependent_var}
 article <- article %>% mutate(log_dur = log(dur)) # log transform
 
@@ -153,19 +164,6 @@ ggplot(df, aes(x = mean_duration, fill = L1)) +
 ```
 
 
-```{r}
-df1 <- df1 %>%
-  mutate(L1 = factor(L1, levels = c(0, 1), labels = c("L2", "L1")))
-
-ggplot(df1, aes(x = meanDurAll, fill = L1)) +
-  geom_density(alpha = 0.5) +
-  labs(title = "Mean Reading Times Per-Word between L1 and L2",
-       x = "Duration",
-       y = "Density") +
-  theme_minimal()
-```
-
-
 ## Correlation
 **Note:** This uses the AAPz values. In this case, the stopwords also contain valency scores due to the AAPz. 
 TODO: What is the correlation when the valency score for stopwords is set to 0?
@@ -200,7 +198,7 @@ df3 <- df3 %>%
 ggplot(df3, aes(x = cor_valency, fill = L1)) +
   geom_density(alpha = 0.5) +
   labs(title = "Correlation between Valency and Duration by L1 and L2",
-       x = "Duration",
+       x = "Correlation",
        y = "Density") +
   theme_minimal()
 ```
