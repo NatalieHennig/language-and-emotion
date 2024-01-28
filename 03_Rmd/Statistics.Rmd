@@ -81,6 +81,18 @@ article <- article %>%
 article <- article %>% mutate(L1 = ifelse(lang == "en", "L1", "L2"))
 ```
 
+
+There are also AAPz scores for stopwords. The following code snippet changes all AAPz scores for stopwords to 0.
+```{r change_valency}
+# Update the AAPz column where is_stopword is 1
+article$AAPz[article$is_stopword == 1] <- 0
+```
+
+```{r drop_columns}
+
+```
+
+
 ### Log-Transformation
 Note: Values that are *NA* must be dealt with. There are multiple options for handling missing values. 
 While they could be removed, this would lead to a loss of data.  
@@ -162,9 +174,7 @@ ggplot(df2, aes(x = mean_duration, fill = L1)) +
 
 
 ## Correlation
-**Note:** This uses the AAPz values. In this case, the stopwords also contain valency scores due to the AAPz. 
-TODO: What is the correlation when the valency score for stopwords is set to 0?
-
+**Note:** This uses the AAPz values. In this case, it must be determined how to deal with stopwords (see above).
 ```{r correlation}
 duration[is.na(duration)] <- 0
 
@@ -285,6 +295,11 @@ summary(lm(medianDurAll ~ L1 + valency, data = article))
 summary(lm(medianDurAll ~ word_length + word_frequency + punctuation + valency + exposure_EN + cft20 + lextale + motiv + start_learning, data = article))
 
 summary(lm(medianDurAll ~ L1 + word_length + word_frequency + punctuation + valency + valency:L1, data = article))
+```
+
+```{r}
+m <- lm(medianDurAll ~ word_length + word_frequency + punctuation + valency + exposure_EN + cft20 + lextale + motiv + start_learning, data = article)
+drop1(m, test = "F")
 ```
 
 
