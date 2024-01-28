@@ -77,8 +77,8 @@ article <- article %>%
   )
 ```
 
-```{r}
-article <- article %>% mutate(L1 = ifelse(lang == "en", 1, 0))
+```{r add_column}
+article <- article %>% mutate(L1 = ifelse(lang == "en", "L1", "L2"))
 ```
 
 ### Log-Transformation
@@ -141,21 +141,18 @@ ggplot(article, aes(x = lang, y = dur, fill = lang)) +
 
 
 ```{r mean_participant}
-df <- article %>% group_by(participant_id) %>% summarize(mean_duration = mean(dur), L1)
+df2 <- article %>% group_by(participant_id) %>% summarize(mean_duration = mean(dur), L1)
 
-df[df$mean_duration == max(df$mean_duration), ] # slowest reader
-df[df$mean_duration == min(df$mean_duration), ] # fastest reader
+df2[df2$mean_duration == max(df2$mean_duration), ] # slowest reader
+df2[df2$mean_duration == min(df2$mean_duration), ] # fastest reader
 
 ```
 
 The following density plot shows the mean reading times for each participant split between L1 and L2.
 ```{r density}
-df <- df %>%
-  mutate(L1 = factor(L1, levels = c(0, 1), labels = c("L2", "L1")))
+df2 <- unique(df2)
 
-df <- unique(df)
-
-ggplot(df, aes(x = mean_duration, fill = L1)) +
+ggplot(df2, aes(x = mean_duration, fill = L1)) +
   geom_density(alpha = 0.5) +
   labs(title = "Mean Reading Times between L1 and L2",
        x = "Duration",
@@ -192,9 +189,6 @@ print(df3)
 ```
 
 ```{r corr_density}
-df3 <- df3 %>%
-  mutate(L1 = factor(L1, levels = c(0, 1), labels = c("L2", "L1")))
-
 ggplot(df3, aes(x = cor_valency, fill = L1)) +
   geom_density(alpha = 0.5) +
   labs(title = "Correlation between Valency and Duration by L1 and L2",
@@ -271,6 +265,26 @@ model <- lm(duration ~ word_length + word_frequency + punctuation + valency + ex
 summary(lm(duration ~ L1 + valency, data = article))
 summary(lm(duration ~ word_length, data = article))
 summary(lm(duration ~ L1 + valency + L1:valency, data = article))
+```
+
+```{r median_between}
+median_duration <- article %>%
+  group_by(token, tokenindex, L1) %>%
+  summarise(valency = first(AAPz), medianDurAll = median(dur)) %>%
+  pivot_wider(names_from = L1, values_from = medianDurAll)
+```
+```{r add_Median}
+article <- article %>%
+  group_by(token, tokenindex, L1) %>%
+  mutate(medianDurAll = median(dur))
+```
+
+```{r RQ3}
+summary(lm(medianDurAll ~ L1 + valency, data = article))
+
+summary(lm(medianDurAll ~ word_length + word_frequency + punctuation + valency + exposure_EN + cft20 + lextale + motiv + start_learning, data = article))
+
+summary(lm(medianDurAll ~ L1 + word_length + word_frequency + punctuation + valency + valency:L1, data = article))
 ```
 
 
