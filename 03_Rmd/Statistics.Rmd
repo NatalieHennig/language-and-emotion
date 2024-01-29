@@ -86,10 +86,32 @@ There are also AAPz scores for stopwords. The following code snippet changes all
 ```{r change_valency}
 # Update the AAPz column where is_stopword is 1
 article$AAPz[article$is_stopword == 1] <- 0
+
+# Turn into categorical
+positive = 0.1
+negative = -0.1
+
+article <- article %>%
+  mutate(AAPz_cat = case_when(
+    AAPz > positive ~ "Positive",
+    AAPz < negative ~ "Negative",
+    TRUE ~ "Neutral"))
 ```
 
-```{r drop_columns}
+```{r organize_columns}
+article <- article %>% select(textnr, lang, L1, participant_id, 
+                              tokenindex, token,
+                              dur, log_dur,
+                              AAPz, AAPz_cat, anew_score,
+                              punctuation, word_length, frequency, 
+                              motiv, lextale, cft20, 
+                              start_learning, fluent,
+                              exposure_L1, exposure_EN,
+                              skip, pos, is_stopword)
 
+# reading, reading_fluent
+# country, family, `school/workplace`,
+# spelling, TOWRE_word, TOWRE_nonword, vocab, vocab.t2.5
 ```
 
 
@@ -122,9 +144,11 @@ head(df1)
 Median duration of each token for each language group-
 ```{r calc_language}
 median_duration <- article %>%
-    group_by(tokenindex, lang, token) %>%
-    summarise(medianDur = median(dur)) %>%
-    spread(lang, medianDur, sep = "_")
+  group_by(tokenindex, lang, token) %>%
+  summarise(medianDur = median(dur)) %>%
+  spread(lang, medianDur, sep = "_") %>%
+  rename_with(~gsub("^lang_", "median_", .), starts_with("lang_")) %>%
+  rename(tokenindex = tokenindex, token = token)
 ```
 
 ```{r join_results}
@@ -226,29 +250,23 @@ ggplot(df3, aes(x = lang, y = cor_valency, fill = lang)) +
 
 Some exploratory median correlations:
 ```{r median_correlation}
-cor(article$lang_he, article$word_length)
-cor(article$lang_en, article$word_length)
+cor(article$median_he, article$word_length)
+cor(article$median_en, article$word_length)
 
-cor(article$lang_he, article$AAPz)
-cor(article$lang_en, article$AAPz)
-
-cor(article$lang_he, article$frequency)
-cor(article$lang_en, article$frequency)
+cor(article$median_he, article$AAPz)
+cor(article$median_en, article$AAPz)
 
 cor(article$AAPz, article$frequency)
-cor(article$AAPz, article$frequency)
-
-cor(article$AAPz, article$word_length)
 cor(article$AAPz, article$word_length)
 
-summary(lm(lang_ru ~ word_length + word_frequency + punctuation + valency, data = article))
+summary(lm(median_ru ~ word_length + word_frequency + punctuation + valency, data = article))
 ```
 
 ## Regression
-COMMENT: multifactorial linear regression analysis (multiple factors - see which one is significant)
+multifactorial linear regression analysis 
 - step-down and step-up analysis (also interactions between variables)
 - begin with step-down 
-- draw up a maximum model based on what is expected from the literature, 1 code per RQ -> send per email, then weed out the insignificant variables
+- draw up a maximum model based on what is expected from the literature, 1 code per RQ 
 ```{r}
 summary(lm(duration ~ valency))
 
@@ -267,7 +285,7 @@ summary(lm(duration ~ word_length + word_frequency + punctuation + exposure_EN +
 summary(lm(duration ~ lang, data = article))
 summary(lm(duration ~ lang + valency, data = article))
 summary(lm(duration ~ word_length + word_frequency + punctuation + valency + exposure_EN + cft20 + lextale + motiv + start_learning + lang, data = article))
-model <- lm(duration ~ word_length + word_frequency + punctuation + valency + exposure_EN + cft20 + lextale + motiv + start_learning + lang + valency:lang, data = article)
+summary(lm(duration ~ word_length + word_frequency + punctuation + valency + exposure_EN + cft20 + lextale + motiv + start_learning + lang + valency:lang, data = article))
 ```
 
 
@@ -286,7 +304,7 @@ median_duration <- article %>%
 ```{r add_Median}
 article <- article %>%
   group_by(token, tokenindex, L1) %>%
-  mutate(medianDurAll = median(dur))
+  mutate(medianDurAll = median(dur), .after = dur)
 ```
 
 ```{r RQ3}
