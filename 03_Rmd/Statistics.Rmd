@@ -125,6 +125,8 @@ hist(log_duration)
 ```
 
 ## Means and Medians 
+
+This doesn't say much because we need to take the other variables into account.
 ```{r}
 article %>%
     group_by(AAPz_cat, lang) %>%
