@@ -258,7 +258,7 @@ summary(lm(median_ru ~ word_length + word_frequency + punctuation + valency, dat
 
 ## Linear Regression
 ```{r median_between}
-median_duration <- article %>%
+article %>%
   group_by(token, tokenindex, L1) %>%
   summarise(valency = first(AAPz), medianDurAll = median(dur)) %>%
   pivot_wider(names_from = L1, values_from = medianDurAll)
@@ -270,6 +270,12 @@ article <- article %>%
   mutate(medianDurAll = median(dur), .after = dur)
 ```
 
+```{r}
+(sum(article$medianDurAll==0)/length(article$medianDurAll))*100
+```
+**important:** Median contains a lot of 0! mean performs better! However, need to check for the larger numbers.
+
+
 multifactorial linear regression analysis 
 - step-down and step-up analysis (also interactions between variables)
 ```{r RQ1}
@@ -277,6 +283,7 @@ summary(lm(medianDurAll ~ word_length + word_frequency + punctuation + valency +
              cft20 + lextale + motiv + start_learning, data = article))
 ```
 
+Performs better without cft20!
 ```{r RQ2}
 summary(lm(medianDurAll ~ word_length + word_frequency + punctuation + valency + 
              exposure_EN + cft20 + lextale + motiv + start_learning + lang + valency:lang, data = article))
