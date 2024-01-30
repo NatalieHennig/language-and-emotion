@@ -52,7 +52,7 @@ log_duration = article$log_dur
 There are also AAPz scores for stopwords. The following code snippet changes all AAPz scores for stopwords to 0.
 ```{r independent_var}
 # Update the AAPz column where is_stopword is 1
-article$AAPz[article$is_stopword == 1] <- 0
+#article$AAPz[article$is_stopword == 1] <- 0
 
 valency = article$AAPz
 ```
@@ -102,7 +102,7 @@ article <- article %>% select(textnr, lang, L1, participant_id,
                               tokenindex, token,
                               skip, pos, is_stopword,
                               dur, log_dur,
-                              AAPz, AAPz_cat, anew_score,
+                              AAPz, AAPz_cat, anew_score, vader_score,
                               punctuation, word_length, frequency, 
                               motiv, lextale, cft20, 
                               start_learning,
@@ -125,8 +125,7 @@ hist(log_duration)
 ```
 
 ## Means and Medians 
-
-This doesn't say much because we need to take the other variables into account.
+TODO: This doesn't say much because we need to take the other variables into account.
 ```{r}
 article %>%
     group_by(AAPz_cat, lang) %>%
@@ -258,21 +257,6 @@ summary(lm(median_ru ~ word_length + word_frequency + punctuation + valency, dat
 
 
 ## Linear Regression
-multifactorial linear regression analysis 
-- step-down and step-up analysis (also interactions between variables)
-```{r RQ1}
-summary(lm(duration ~ word_length + word_frequency + punctuation + valency + exposure_EN + 
-             cft20 + lextale + motiv + start_learning, data = article))
-
-summary(lm(duration ~ word_length + word_frequency + punctuation + valency + exposure_EN + 
-             cft20 + lextale + motiv + start_learning, data = article))
-```
-
-```{r RQ2}
-summary(lm(duration ~ word_length + word_frequency + punctuation + valency + 
-             exposure_EN + cft20 + lextale + motiv + start_learning + lang + valency:lang, data = article))
-```
-
 ```{r median_between}
 median_duration <- article %>%
   group_by(token, tokenindex, L1) %>%
@@ -286,11 +270,20 @@ article <- article %>%
   mutate(medianDurAll = median(dur), .after = dur)
 ```
 
-```{r RQ3}
+multifactorial linear regression analysis 
+- step-down and step-up analysis (also interactions between variables)
+```{r RQ1}
 summary(lm(medianDurAll ~ word_length + word_frequency + punctuation + valency + exposure_EN + 
              cft20 + lextale + motiv + start_learning, data = article))
+```
 
-summary(lm(medianDurAll ~ L1 + word_length + word_frequency + punctuation + valency + valency:L1, data = article))
+```{r RQ2}
+summary(lm(medianDurAll ~ word_length + word_frequency + punctuation + valency + 
+             exposure_EN + cft20 + lextale + motiv + start_learning + lang + valency:lang, data = article))
+```
+
+```{r RQ3}
+summary(lm(medianDurAll ~ L1 + word_length + word_frequency + punctuation + valency + valency + valency:L1, data = article))
 ```
 
 ```{r feature_weights}
