@@ -18,16 +18,16 @@ RT_data <- read_csv(here("05_output", "reading_times.csv"), col_names=TRUE, id=N
 
 ```{r participant_count}
 aggregate(participant_id ~ lang, data = RT_data, FUN = function(x) length(unique(x)))
+```
+```{r total_participants}
 length(unique(RT_data$participant_id))
 ```
-
 
 ## Declare variables
 ```{r select_textnr}
 #article <- RT_data %>% filter(textnr == 1)
 article <- RT_data
 ```
-
 
 "As regards very long fixations, deletion (but not merger) is also common. Eye-tracking researchers generally remove fixations longer than 800 ms, as recommended by Conklin and Pellicer-Sánchez (2016) and Keating (2014), because these fixations are believed to signal a lapse in attention." (Godfroid 2020: 261)
 ```{r outlier}
@@ -42,14 +42,18 @@ article <- RT_data
 ```{r dependent_var}
 article <- article %>% mutate(log_dur = log(dur)) # log transform
 
-duration = article$dur
-log_duration = article$log_dur
-
 article$dur[is.na(article$dur)] <- 0 # set NA to 0 
 article$log_dur[is.na(article$log_dur)] <- 0
+
+duration = article$dur
+log_duration = article$log_dur
 ```
 
+There are also AAPz scores for stopwords. The following code snippet changes all AAPz scores for stopwords to 0.
 ```{r independent_var}
+# Update the AAPz column where is_stopword is 1
+article$AAPz[article$is_stopword == 1] <- 0
+
 valency = article$AAPz
 ```
 
@@ -81,12 +85,7 @@ article <- article %>%
 article <- article %>% mutate(L1 = ifelse(lang == "en", "L1", "L2"))
 ```
 
-
-There are also AAPz scores for stopwords. The following code snippet changes all AAPz scores for stopwords to 0.
 ```{r change_valency}
-# Update the AAPz column where is_stopword is 1
-article$AAPz[article$is_stopword == 1] <- 0
-
 # Turn into categorical
 positive = 0.1
 negative = -0.1
@@ -101,29 +100,29 @@ article <- article %>%
 ```{r organize_columns}
 article <- article %>% select(textnr, lang, L1, participant_id, 
                               tokenindex, token,
+                              skip, pos, is_stopword,
                               dur, log_dur,
                               AAPz, AAPz_cat, anew_score,
                               punctuation, word_length, frequency, 
                               motiv, lextale, cft20, 
-                              start_learning, fluent,
-                              exposure_L1, exposure_EN,
-                              skip, pos, is_stopword)
+                              start_learning,
+                              exposure_EN
+                              )
 
-# reading, reading_fluent
+article$exposure_EN[article$lang == "en"] <- 100
+
+# fluent, reading, reading_fluent, exposure_L1,
 # country, family, `school/workplace`,
 # spelling, TOWRE_word, TOWRE_nonword, vocab, vocab.t2.5
 ```
 
-
 ### Log-Transformation
 Note: Values that are *NA* must be dealt with. There are multiple options for handling missing values. 
-While they could be removed, this would lead to a loss of data.  
-Another approach is to set it to a very low value, for example 1ms.
+While they could be removed, this would lead to a loss of data. Another approach is to set it to a very low value, for example 1ms.
 ```{r}
 hist(duration)
 hist(log_duration)
 ```
-
 
 ### Means and Medians 
 #### Across all readers for each word
@@ -175,13 +174,11 @@ ggplot(article, aes(x = lang, y = dur, fill = lang)) +
 
 ```
 
-
 ```{r mean_participant}
 df2 <- article %>% group_by(participant_id) %>% summarize(mean_duration = mean(dur), L1)
 
 df2[df2$mean_duration == max(df2$mean_duration), ] # slowest reader
 df2[df2$mean_duration == min(df2$mean_duration), ] # fastest reader
-
 ```
 
 The following density plot shows the mean reading times for each participant split between L1 and L2.
@@ -200,18 +197,7 @@ ggplot(df2, aes(x = mean_duration, fill = L1)) +
 ## Correlation
 **Note:** This uses the AAPz values. In this case, it must be determined how to deal with stopwords (see above).
 ```{r correlation}
-duration[is.na(duration)] <- 0
-
-
 cat("Correlation", "\n","Word length:", cor(word_length,duration), "\n","Word frequency:", cor(word_frequency, duration), "\n","Valency:", cor(valency, duration))
-```
-
-with article set to **reading_time**
-```
-group_by(participant) %>%
-+     summarize(cor=cor(valency, duration))
-Error in UseMethod("group_by") : 
-  no applicable method for 'group_by' applied to an object of class "factor"
 ```
 
 ```{r correlation_by_participant}
@@ -231,7 +217,6 @@ ggplot(df3, aes(x = cor_valency, fill = L1)) +
   theme_minimal()
 ```
 
-
 ```{r correlation_by_language}
 article %>%
   group_by(lang) %>%
@@ -246,7 +231,6 @@ ggplot(df3, aes(x = lang, y = cor_valency, fill = lang)) +
        x = "Language",
        y = "Correlation")
 ```
-
 
 Some exploratory median correlations:
 ```{r median_correlation}
@@ -267,32 +251,18 @@ multifactorial linear regression analysis
 - step-down and step-up analysis (also interactions between variables)
 - begin with step-down 
 - draw up a maximum model based on what is expected from the literature, 1 code per RQ 
-```{r}
-summary(lm(duration ~ valency))
-
-summary(lm(log_duration ~ valency))
-```
-log-transformed duration:
-- R^2 is 2.8% -> article 1 to 4
-- R^2 is 3.4% -> article 1
 
 ```{r RQ1}
-summary(lm(duration ~ word_length + word_frequency + punctuation + valency + exposure_EN + cft20 + lextale + motiv + start_learning, data = article))
-summary(lm(duration ~ word_length + word_frequency + punctuation + valency + cft20 + lextale, data = article))
-summary(lm(duration ~ word_length + word_frequency + punctuation + exposure_EN + cft20 + lextale + motiv + start_learning, data = article))
+summary(lm(duration ~ word_length + word_frequency + punctuation + valency + exposure_EN + 
+             cft20 + lextale + motiv + start_learning, data = article))
+
+summary(lm(duration ~ word_length + word_frequency + punctuation + valency + exposure_EN + 
+             cft20 + lextale + motiv + start_learning, data = article))
 ```
+
 ```{r RQ2}
-summary(lm(duration ~ lang, data = article))
-summary(lm(duration ~ lang + valency, data = article))
-summary(lm(duration ~ word_length + word_frequency + punctuation + valency + exposure_EN + cft20 + lextale + motiv + start_learning + lang, data = article))
-summary(lm(duration ~ word_length + word_frequency + punctuation + valency + exposure_EN + cft20 + lextale + motiv + start_learning + lang + valency:lang, data = article))
-```
-
-
-```{r}
-summary(lm(duration ~ L1 + valency, data = article))
-summary(lm(duration ~ word_length, data = article))
-summary(lm(duration ~ L1 + valency + L1:valency, data = article))
+summary(lm(duration ~ word_length + word_frequency + punctuation + valency + 
+             exposure_EN + cft20 + lextale + motiv + start_learning + lang + valency:lang, data = article))
 ```
 
 ```{r median_between}
@@ -301,22 +271,24 @@ median_duration <- article %>%
   summarise(valency = first(AAPz), medianDurAll = median(dur)) %>%
   pivot_wider(names_from = L1, values_from = medianDurAll)
 ```
-```{r add_Median}
+
+```{r add_median}
 article <- article %>%
   group_by(token, tokenindex, L1) %>%
   mutate(medianDurAll = median(dur), .after = dur)
 ```
 
 ```{r RQ3}
-summary(lm(medianDurAll ~ L1 + valency, data = article))
-
-summary(lm(medianDurAll ~ word_length + word_frequency + punctuation + valency + exposure_EN + cft20 + lextale + motiv + start_learning, data = article))
+summary(lm(medianDurAll ~ word_length + word_frequency + punctuation + valency + exposure_EN + 
+             cft20 + lextale + motiv + start_learning, data = article))
 
 summary(lm(medianDurAll ~ L1 + word_length + word_frequency + punctuation + valency + valency:L1, data = article))
 ```
 
-```{r}
-m <- lm(medianDurAll ~ word_length + word_frequency + punctuation + valency + exposure_EN + cft20 + lextale + motiv + start_learning, data = article)
+```{r feature_weights}
+m <- lm(medianDurAll ~ word_length + word_frequency + punctuation + valency + exposure_EN + 
+          cft20 + lextale + motiv + start_learning, data = article)
+
 drop1(m, test = "F")
 ```
 
