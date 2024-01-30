@@ -125,6 +125,14 @@ hist(log_duration)
 ```
 
 ## Means and Medians 
+```{r}
+article %>%
+    group_by(AAPz_cat, lang) %>%
+    summarise(val = median(dur)) %>% 
+  pivot_wider(names_from = AAPz_cat, values_from = val)
+```
+
+
 #### Across all readers for each word
 ```{r calc_all}
 article %>%
