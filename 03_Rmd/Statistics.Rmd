@@ -124,7 +124,7 @@ hist(duration)
 hist(log_duration)
 ```
 
-### Means and Medians 
+## Means and Medians 
 #### Across all readers for each word
 ```{r calc_all}
 article %>%
@@ -155,7 +155,7 @@ article <- left_join(article, median_duration, by = c("token", "tokenindex"))
 rm(median_duration)
 ```
 
-## Mean Duration 
+### Means 
 ```{r mean_lang}
 article %>% group_by(lang) %>% summarize(mean_duration = mean(dur), standard_deviation = sd(dur))
 ```
@@ -246,12 +246,10 @@ cor(article$AAPz, article$word_length)
 summary(lm(median_ru ~ word_length + word_frequency + punctuation + valency, data = article))
 ```
 
-## Regression
+
+## Linear Regression
 multifactorial linear regression analysis 
 - step-down and step-up analysis (also interactions between variables)
-- begin with step-down 
-- draw up a maximum model based on what is expected from the literature, 1 code per RQ 
-
 ```{r RQ1}
 summary(lm(duration ~ word_length + word_frequency + punctuation + valency + exposure_EN + 
              cft20 + lextale + motiv + start_learning, data = article))
@@ -286,14 +284,14 @@ summary(lm(medianDurAll ~ L1 + word_length + word_frequency + punctuation + vale
 ```
 
 ```{r feature_weights}
-m <- lm(medianDurAll ~ word_length + word_frequency + punctuation + valency + exposure_EN + 
+weights <- lm(medianDurAll ~ word_length + word_frequency + punctuation + valency + exposure_EN + 
           cft20 + lextale + motiv + start_learning, data = article)
 
-drop1(m, test = "F")
+drop1(weights, test = "F")
 ```
 
 
-# Linear Mixed-Models
+## Linear Mixed-Models
 Comment: Would need ANOVA to see which model is more significant
 ```{r eval=FALSE, include=FALSE}
 summary(lmer(log_duration ~ valency + (1 + valency | word_length)))
