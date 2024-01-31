@@ -172,8 +172,10 @@ article <- article %>%
 ## Descriptive Statistics
 ### Participants
 ```{r mean_participant}
-ind_reading_times <- article %>% group_by(participant_id) %>% summarize(mean_duration = mean(dur), L1, .groups = "drop") 
-ind_reading_times <- unique(ind_reading_times)
+ind_reading_times <- article %>% 
+  group_by(participant_id) %>% 
+  summarize(mean_duration = mean(dur), L1, .groups = "drop") %>%
+  distinct()
 ```
 
 ```{r}
@@ -273,14 +275,17 @@ summary(lm(median_dur ~ word_length + word_frequency + punctuation + valency, da
 ```
 
 Performs better without cft20!
+**Note:** Do the variables *exposure_EN + cft20 + lextale + motiv + start_learning* need to be medians between language groups?
 ```{r RQ2}
 summary(lm(median_lang ~ word_length + word_frequency + punctuation + valency + 
              exposure_EN + cft20 + lextale + motiv + start_learning 
            + lang + valency:lang, data = article)) 
 ```
 
+**Note:** Do the variables *exposure_EN + cft20 + lextale + motiv + start_learning* need to be medians between L1 and L2?
 ```{r RQ3}
-summary(lm(median_L1L2 ~ L1 + word_length + word_frequency + punctuation + 
+summary(lm(median_L1L2 ~ L1 + word_length + word_frequency + punctuation +
+             exposure_EN + cft20 + lextale + motiv + start_learning +
              valency + valency:L1, data = article))
 ```
 
