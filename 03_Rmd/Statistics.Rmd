@@ -212,20 +212,18 @@ cat("Correlation", "\n","Word length:", cor(word_length,duration), "\n","Word fr
 ```
 
 ```{r correlation_by_participant}
-df3 <- article %>%
+article <- article %>%
   group_by(participant_id) %>%
   mutate(cor_valency=cor(AAPz, dur), cor_length=cor(word_length, dur), cor_frequency=cor(frequency, dur))
-
-print(df3)
 ```
 
 ```{r corr_density}
 # mean L1
-mean_values <- df3 %>%
+mean_values <- article %>%
   group_by(L1) %>%
   summarize(mean_cor_valency = mean(cor_valency))
 
-ggplot(df3, aes(x = cor_valency, fill = L1)) +
+ggplot(article, aes(x = cor_valency, fill = L1)) +
   geom_density(alpha = 0.5) +
   geom_vline(data = mean_values, aes(xintercept = mean_cor_valency, color = L1), linetype = "dashed") +
   labs(title = "Correlation between Valency and Duration by L1 and L2",
@@ -241,7 +239,7 @@ article %>%
 ```
 
 ```{r}
-ggplot(df3, aes(x = lang, y = cor_valency, fill = lang)) +
+ggplot(article, aes(x = lang, y = cor_valency, fill = lang)) +
   geom_boxplot() +
   scale_fill_manual(values = terrain.colors(9)) +
   labs(title = "Boxplot of Correlation between Valency and Duration by Language",
@@ -266,8 +264,8 @@ summary(lm(median_ru ~ word_length + word_frequency + punctuation + valency, dat
 ## Linear Regression
 ```{r median_between}
 article %>%
-  group_by(token, tokenindex, L1) %>%
-  summarise(valency = first(AAPz), median_dur = median(dur)) %>%
+  group_by(textnr, token, tokenindex, L1) %>%
+  summarise(valency = first(AAPz), median_dur = median(dur), .groups = "drop") %>%
   pivot_wider(names_from = L1, values_from = median_dur)
 ```
 
