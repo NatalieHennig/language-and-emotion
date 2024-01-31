@@ -263,7 +263,6 @@ cor(article$AAPz, article$word_length)
 summary(lm(median_ru ~ word_length + word_frequency + punctuation + valency, data = article))
 ```
 
-
 ## Linear Regression
 ```{r median_between}
 article %>%
@@ -272,17 +271,16 @@ article %>%
   pivot_wider(names_from = L1, values_from = medianDurAll)
 ```
 
-```{r add_median}
+```{r add_median_L1L2}
 article <- article %>%
-  group_by(token, tokenindex, L1) %>%
-  mutate(medianDurAll = median(dur), .after = dur)
+  group_by(textnr, token, tokenindex, L1) %>%
+  mutate(medianL1L2 = median(dur), .after = dur, .groups = 'drop')
 ```
 
-```{r}
-(sum(article$medianDurAll==0)/length(article$medianDurAll))*100
+```{r percentage_0}
+(sum(article$medianL1L2==0)/length(article$medianL1L2))*100
 ```
 **important:** Median contains a lot of 0! mean performs better! However, need to check for the larger numbers.
-
 
 multifactorial linear regression analysis 
 - step-down and step-up analysis (also interactions between variables)
@@ -293,16 +291,17 @@ summary(lm(medianDurAll ~ word_length + word_frequency + punctuation + valency +
 
 Performs better without cft20!
 ```{r RQ2}
-summary(lm(medianDurAll ~ word_length + word_frequency + punctuation + valency + 
+summary(lm(medianL1L2 ~ word_length + word_frequency + punctuation + valency + 
              exposure_EN + cft20 + lextale + motiv + start_learning + lang + valency:lang, data = article))
 ```
 
 ```{r RQ3}
-summary(lm(medianDurAll ~ L1 + word_length + word_frequency + punctuation + valency + valency + valency:L1, data = article))
+summary(lm(medianDurAll ~ L1 + word_length + word_frequency + punctuation + 
+             valency + valency:L1, data = article))
 ```
 
 ```{r feature_weights}
-weights <- lm(medianDurAll ~ word_length + word_frequency + punctuation + valency + exposure_EN + 
+weights <- lm(medianL1L2 ~ word_length + word_frequency + punctuation + valency + exposure_EN + 
           cft20 + lextale + motiv + start_learning, data = article)
 
 drop1(weights, test = "F")
