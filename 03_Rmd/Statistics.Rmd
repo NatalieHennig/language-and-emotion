@@ -29,7 +29,6 @@ length(unique(RT_data$participant_id))
 #article <- RT_data %>% filter(textnr == 1)
 article <- RT_data
 ```
-
 "As regards very long fixations, deletion (but not merger) is also common. Eye-tracking researchers generally remove fixations longer than 800 ms, as recommended by Conklin and Pellicer-Sánchez (2016) and Keating (2014), because these fixations are believed to signal a lapse in attention." (Godfroid 2020: 261)
 ```{r outlier, eval=FALSE, include=FALSE}
 # Cap the values in the dur column to a maximum of 800
@@ -129,6 +128,7 @@ article %>%
     summarise(val = median(dur)) %>% 
   pivot_wider(names_from = AAPz_cat, values_from = val)
 ```
+
 #### Mean and median across all readers for each word
 ```{r calc_all}
 article %>%
@@ -139,6 +139,7 @@ article <- article %>%
     group_by(token, tokenindex, textnr) %>%
     mutate(mean_dur = mean(dur), median_dur = median(dur))
 ```
+
 #### Median across language group for each word
 Median duration of each token for each language group.
 ```{r calc_language}
@@ -155,27 +156,29 @@ article <- left_join(article, median_duration, by = c("textnr", "token", "tokeni
 rm(median_duration)
 ```
 
+#### Median across L1 and L2 for each word
+```{r median_L1L2}
+article %>%
+  group_by(textnr, token, tokenindex, L1) %>%
+  summarise(valency = first(AAPz), median_dur = median(dur), .groups = "drop") %>%
+  pivot_wider(names_from = L1, values_from = median_dur)
+```
+
+```{r add_median_L1L2}
+article <- article %>%
+  group_by(textnr, token, tokenindex, L1) %>%
+  mutate(median_L1L2 = median(dur), .after = log_dur)
+```
+
+```{r percentage_0}
+(sum(article$median_L1L2==0)/length(article$median_L1L2))*100
+```
+**important:** Median contains a lot of 0! mean performs better! However, need to check for the larger numbers.
+
 ## Descriptive Statistics
-#### Duration across language group 
-```{r mean_lang}
-article %>% group_by(lang) %>% 
-  summarize(mean_duration = round(mean(dur)), 
-            median_duration = median(dur), 
-            standard_deviation = round(sd(dur)))
-```
-
-```{r plot_1}
-ggplot(article, aes(x = lang, y = dur, fill = lang)) +
-  geom_boxplot() +
-  scale_y_continuous(limits = c(0, 1000)) +
-  scale_fill_manual(values = terrain.colors(9)) +
-  labs(title = "Boxplot of Duration by Language",
-       x = "Language",
-       y = "Duration")
-```
-
+### Participants
 ```{r mean_participant}
-df2 <- article %>% group_by(participant_id) %>% summarize(mean_duration = mean(dur), L1) 
+df2 <- article %>% group_by(participant_id) %>% summarize(mean_duration = mean(dur), L1, .groups = "drop") 
 df2 <- unique(df2)
 ```
 
@@ -203,6 +206,25 @@ ggplot(df2, aes(x = mean_duration, fill = L1)) +
        x = "Duration",
        y = "Density") +
   theme_minimal()
+```
+
+### Language Group
+#### Duration 
+```{r mean_lang}
+article %>% group_by(lang) %>% 
+  summarize(mean_duration = round(mean(dur)), 
+            median_duration = median(dur), 
+            standard_deviation = round(sd(dur)))
+```
+
+```{r plot_1}
+ggplot(article, aes(x = lang, y = dur, fill = lang)) +
+  geom_boxplot() +
+  scale_y_continuous(limits = c(0, 1000)) +
+  scale_fill_manual(values = terrain.colors(9)) +
+  labs(title = "Boxplot of Duration by Language",
+       x = "Language",
+       y = "Duration")
 ```
 
 ## Correlation
@@ -262,25 +284,7 @@ summary(lm(median_ru ~ word_length + word_frequency + punctuation + valency, dat
 ```
 
 ## Linear Regression
-```{r median_between}
-article %>%
-  group_by(textnr, token, tokenindex, L1) %>%
-  summarise(valency = first(AAPz), median_dur = median(dur), .groups = "drop") %>%
-  pivot_wider(names_from = L1, values_from = median_dur)
-```
-
-```{r add_median_L1L2}
-article <- article %>%
-  group_by(textnr, token, tokenindex, L1) %>%
-  mutate(median_L1L2 = median(dur), .after = log_dur)
-```
-
-```{r percentage_0}
-(sum(article$median_L1L2==0)/length(article$median_L1L2))*100
-```
-**important:** Median contains a lot of 0! mean performs better! However, need to check for the larger numbers.
-
-multifactorial linear regression analysis 
+Multifactorial linear regression analysis 
 - step-down and step-up analysis (also interactions between variables)
 ```{r RQ1}
 summary(lm(median_dur ~ word_length + word_frequency + punctuation + valency + exposure_EN + 
@@ -295,7 +299,7 @@ summary(lm(median_dur ~ word_length + word_frequency + punctuation + valency +
 ```
 
 ```{r RQ3}
-summary(lm(median_dur ~ L1 + word_length + word_frequency + punctuation + 
+summary(lm(median_L1L2 ~ L1 + word_length + word_frequency + punctuation + 
              valency + valency:L1, data = article))
 ```
 
