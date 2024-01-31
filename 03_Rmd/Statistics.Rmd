@@ -129,7 +129,7 @@ article %>%
     summarise(val = median(dur)) %>% 
   pivot_wider(names_from = AAPz_cat, values_from = val)
 ```
-#### Across all readers for each word
+#### Mean and median across all readers for each word
 ```{r calc_all}
 article %>%
   group_by(token, tokenindex, textnr) %>%
@@ -139,30 +139,32 @@ article <- article %>%
     group_by(token, tokenindex, textnr) %>%
     mutate(meanDurAll = mean(dur), medianDurAll = median(dur), .groups = 'drop')
 ```
+#### Median across language group for each word
 Median duration of each token for each language group.
 ```{r calc_language}
 median_duration <- article %>%
-  group_by(textnr, tokenindex, token, lang) %>%
+  group_by(textnr, token, tokenindex, lang) %>%
   summarise(medianDur = median(dur), .groups = 'drop') %>%
   spread(lang, medianDur, sep = "_") %>%
   rename_with(~gsub("^lang_", "median_", .), starts_with("lang_")) %>%
-  rename(textnr = textnr, tokenindex = tokenindex, token = token)
+  rename(textnr = textnr, token = token, tokenindex = tokenindex)
 ```
 
 ```{r join_results}
-article <- left_join(article, median_duration, by = c("token", "tokenindex", "textnr"))
+article <- left_join(article, median_duration, by = c("textnr", "token", "tokenindex"))
 rm(median_duration)
 ```
 
-### Means 
+## Descriptive Statistics
+#### Duration across language group 
 ```{r mean_lang}
-article %>% group_by(lang) %>% summarize(mean_duration = mean(dur), standard_deviation = sd(dur))
+article %>% group_by(lang) %>% 
+  summarize(mean_duration = round(mean(dur)), 
+            median_duration = median(dur), 
+            standard_deviation = round(sd(dur)))
 ```
 
-```{r}
-# Basic boxplot
-#boxplot(article$dur ~ article$lang , col=terrain.colors(9))
-
+```{r plot_1}
 ggplot(article, aes(x = lang, y = dur, fill = lang)) +
   geom_boxplot() +
   scale_y_continuous(limits = c(0, 1000)) +
@@ -170,7 +172,6 @@ ggplot(article, aes(x = lang, y = dur, fill = lang)) +
   labs(title = "Boxplot of Duration by Language",
        x = "Language",
        y = "Duration")
-
 ```
 
 ```{r mean_participant}
@@ -203,7 +204,6 @@ ggplot(df2, aes(x = mean_duration, fill = L1)) +
        y = "Density") +
   theme_minimal()
 ```
-
 
 ## Correlation
 **Note:** This uses the AAPz values. In this case, it must be determined how to deal with stopwords (see above).
