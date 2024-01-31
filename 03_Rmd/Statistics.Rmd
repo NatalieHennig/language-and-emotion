@@ -266,15 +266,15 @@ ggplot(article, aes(x = lang, y = cor_valency, fill = lang)) +
 ```
 
 ## Linear Regression
-Multifactorial linear regression analysis 
-- step-down and step-up analysis (also interactions between variables)
+Multifactorial linear regression analysis. Step-down and step-up analysis, including interactions between variables.
 
-When taking the median of all, *exposure*, *start_learning*, etc. doesn't makes sense.
+### RQ1
+When taking the median of all, *exposure_EN + cft20 + lextale + motiv + start_learning* doesn't make sense to be included.
 ```{r RQ1}
 summary(lm(median_dur ~ word_length + word_frequency + punctuation + valency, data = article))
 ```
 
-Performs better without cft20!
+### RQ2
 **Note:** Do the variables *exposure_EN + cft20 + lextale + motiv + start_learning* need to be medians between language groups?
 ```{r RQ2}
 summary(lm(median_lang ~ word_length + word_frequency + punctuation + valency + 
@@ -282,6 +282,7 @@ summary(lm(median_lang ~ word_length + word_frequency + punctuation + valency +
            + lang + valency:lang, data = article)) 
 ```
 
+### RQ3
 **Note:** Do the variables *exposure_EN + cft20 + lextale + motiv + start_learning* need to be medians between L1 and L2?
 ```{r RQ3}
 summary(lm(median_L1L2 ~ L1 + word_length + word_frequency + punctuation +
@@ -290,10 +291,10 @@ summary(lm(median_L1L2 ~ L1 + word_length + word_frequency + punctuation +
 ```
 
 ```{r feature_weights}
-weights <- lm(median_L1L2 ~ word_length + word_frequency + punctuation + valency + exposure_EN + 
+RQ3 <- lm(median_L1L2 ~ word_length + word_frequency + punctuation + valency + exposure_EN + 
           cft20 + lextale + motiv + start_learning, data = article)
 
-drop1(weights, test = "F")
+drop1(RQ3, test = "F")
 ```
 
 
