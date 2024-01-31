@@ -143,33 +143,27 @@ article <- article %>%
 #### Median across language group for each word
 Median duration of each token for each language group.
 ```{r calc_language}
-median_duration <- article %>%
+article %>%
   group_by(textnr, token, tokenindex, lang) %>%
   summarise(medianDur = median(dur), .groups = 'drop') %>%
   spread(lang, medianDur, sep = "_") %>%
-  rename_with(~gsub("^lang_", "median_", .), starts_with("lang_")) %>%
-  rename(textnr = textnr, token = token, tokenindex = tokenindex)
-```
+  rename_with(~gsub("^lang_", "median_", .), starts_with("lang_"))
 
-```{r join_results}
-article <- left_join(article, median_duration, by = c("textnr", "token", "tokenindex"))
-rm(median_duration)
+article <- article %>%
+  group_by(textnr, token, tokenindex, lang) %>%
+  mutate(median_lang = median(dur), .after = log_dur)
 ```
-
 #### Median across L1 and L2 for each word
 ```{r median_L1L2}
 article %>%
   group_by(textnr, token, tokenindex, L1) %>%
   summarise(valency = first(AAPz), median_dur = median(dur), .groups = "drop") %>%
   pivot_wider(names_from = L1, values_from = median_dur)
-```
 
-```{r add_median_L1L2}
 article <- article %>%
   group_by(textnr, token, tokenindex, L1) %>%
   mutate(median_L1L2 = median(dur), .after = log_dur)
 ```
-
 ```{r percentage_0}
 (sum(article$median_L1L2==0)/length(article$median_L1L2))*100
 ```
@@ -178,27 +172,27 @@ article <- article %>%
 ## Descriptive Statistics
 ### Participants
 ```{r mean_participant}
-df2 <- article %>% group_by(participant_id) %>% summarize(mean_duration = mean(dur), L1, .groups = "drop") 
-df2 <- unique(df2)
+ind_reading_times <- article %>% group_by(participant_id) %>% summarize(mean_duration = mean(dur), L1, .groups = "drop") 
+ind_reading_times <- unique(ind_reading_times)
 ```
 
 ```{r}
 cat("Slowest reader: ", 
-    df2$participant_id[df2$mean_duration == max(df2$mean_duration)], ",",
-    round(max(df2$mean_duration)),"ms", "\n")
+    ind_reading_times$participant_id[ind_reading_times$mean_duration == max(ind_reading_times$mean_duration)], ",",
+    round(max(ind_reading_times$mean_duration)),"ms", "\n")
 
 cat("Fastest reader: ", 
-    df2$participant_id[df2$mean_duration == min(df2$mean_duration)], ",",
-    round(min(df2$mean_duration)), "ms")
+    ind_reading_times$participant_id[ind_reading_times$mean_duration == min(ind_reading_times$mean_duration)], ",",
+    round(min(ind_reading_times$mean_duration)), "ms")
 ```
 
 The following density plot shows the mean reading times for each participant split between L1 and L2.
 ```{r density}
-group_mean <- df2 %>%
+group_mean <- ind_reading_times %>%
   group_by(L1) %>%
   summarize(grp.mean = mean(mean_duration))
 
-ggplot(df2, aes(x = mean_duration, fill = L1)) +
+ggplot(ind_reading_times, aes(x = mean_duration, fill = L1)) +
   geom_density(alpha = 0.5) +
   geom_vline(data=group_mean, aes(xintercept=grp.mean, color=L1),
              linetype="dashed") +
@@ -269,33 +263,20 @@ ggplot(article, aes(x = lang, y = cor_valency, fill = lang)) +
        y = "Correlation")
 ```
 
-Some exploratory median correlations:
-```{r median_correlation}
-cor(article$median_he, article$word_length)
-cor(article$median_en, article$word_length)
-
-cor(article$median_he, article$AAPz)
-cor(article$median_en, article$AAPz)
-
-cor(article$AAPz, article$frequency)
-cor(article$AAPz, article$word_length)
-
-summary(lm(median_ru ~ word_length + word_frequency + punctuation + valency, data = article))
-```
-
 ## Linear Regression
 Multifactorial linear regression analysis 
 - step-down and step-up analysis (also interactions between variables)
+
+When taking the median of all, *exposure*, *start_learning*, etc. doesn't makes sense.
 ```{r RQ1}
-summary(lm(median_dur ~ word_length + word_frequency + punctuation + valency + exposure_EN + 
-             cft20 + lextale + motiv + start_learning, data = article))
+summary(lm(median_dur ~ word_length + word_frequency + punctuation + valency, data = article))
 ```
 
 Performs better without cft20!
 ```{r RQ2}
-summary(lm(median_dur ~ word_length + word_frequency + punctuation + valency + 
+summary(lm(median_lang ~ word_length + word_frequency + punctuation + valency + 
              exposure_EN + cft20 + lextale + motiv + start_learning 
-           + median_en + valency:median_en, data = article)) #median_en or lang??
+           + lang + valency:lang, data = article)) 
 ```
 
 ```{r RQ3}
