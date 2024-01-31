@@ -1,6 +1,6 @@
 # Statistical Exploration
 
-## Libraries
+**Libraries**
 ```{r message=FALSE, warning=FALSE}
 library(lme4)
 library(ggplot2)
@@ -12,6 +12,7 @@ library(readr)
 library(here)
 ```
 
+## Dataset
 ```{r load_data, message=FALSE}
 RT_data <- read_csv(here("05_output", "reading_times.csv"), col_names=TRUE, id=NULL)
 ```
@@ -30,7 +31,7 @@ article <- RT_data
 ```
 
 "As regards very long fixations, deletion (but not merger) is also common. Eye-tracking researchers generally remove fixations longer than 800 ms, as recommended by Conklin and Pellicer-Sánchez (2016) and Keating (2014), because these fixations are believed to signal a lapse in attention." (Godfroid 2020: 261)
-```{r outlier}
+```{r outlier, eval=FALSE, include=FALSE}
 # Cap the values in the dur column to a maximum of 800
 #article$dur <- pmin(article$dur, 800)
 
@@ -38,11 +39,16 @@ article <- RT_data
 #article <- article[article$dur <= 800, ]
 ```
 
-
-```{r dependent_var}
+### Log-Transformation
+```{r log_duration}
 article <- article %>% mutate(log_dur = log(dur)) # log transform
-
-article$dur[is.na(article$dur)] <- 0 # set NA to 0 
+hist(article$dur)
+hist(article$log_dur)
+```
+**Note:** Values that are *NA* must be dealt with. There are multiple options for handling missing values. 
+While they could be removed, this would lead to a loss of data. Another approach is to set it to a very low value, for example 1ms.
+```{r dependent_var}
+article$dur[is.na(article$dur)] <- 0 
 article$log_dur[is.na(article$log_dur)] <- 0
 
 duration = article$dur
@@ -55,6 +61,18 @@ There are also AAPz scores for stopwords. The following code snippet changes all
 #article$AAPz[article$is_stopword == 1] <- 0
 
 valency = article$AAPz
+```
+
+```{r categorical_valency}
+# Turn into categorical
+positive = 0.1
+negative = -0.1
+
+article <- article %>%
+  mutate(AAPz_cat = case_when(
+    AAPz > positive ~ "Positive",
+    AAPz < negative ~ "Negative",
+    TRUE ~ "Neutral"))
 ```
 
 ```{r confounding_var}
@@ -81,20 +99,9 @@ article <- article %>%
   )
 ```
 
-```{r add_column}
+```{r adjust_column}
 article <- article %>% mutate(L1 = ifelse(lang == "en", "L1", "L2"))
-```
-
-```{r change_valency}
-# Turn into categorical
-positive = 0.1
-negative = -0.1
-
-article <- article %>%
-  mutate(AAPz_cat = case_when(
-    AAPz > positive ~ "Positive",
-    AAPz < negative ~ "Negative",
-    TRUE ~ "Neutral"))
+article$exposure_EN[article$lang == "en"] <- 100 # set exposure for EN participants
 ```
 
 ```{r organize_columns}
@@ -109,19 +116,9 @@ article <- article %>% select(textnr, lang, L1, participant_id,
                               exposure_EN
                               )
 
-article$exposure_EN[article$lang == "en"] <- 100
-
 # fluent, reading, reading_fluent, exposure_L1,
 # country, family, `school/workplace`,
 # spelling, TOWRE_word, TOWRE_nonword, vocab, vocab.t2.5
-```
-
-### Log-Transformation
-Note: Values that are *NA* must be dealt with. There are multiple options for handling missing values. 
-While they could be removed, this would lead to a loss of data. Another approach is to set it to a very low value, for example 1ms.
-```{r}
-hist(duration)
-hist(log_duration)
 ```
 
 ## Means and Medians 
@@ -132,35 +129,28 @@ article %>%
     summarise(val = median(dur)) %>% 
   pivot_wider(names_from = AAPz_cat, values_from = val)
 ```
-
-
 #### Across all readers for each word
 ```{r calc_all}
 article %>%
-  group_by(token, tokenindex) %>%
-  summarise(meanDurAll = mean(dur), medianDurAll = median(dur))
+  group_by(token, tokenindex, textnr) %>%
+  summarise(meanDurAll = round(mean(dur)), medianDurAll = round(median(dur)), .groups = 'drop')
 
-df1 <- article %>%
-    group_by(token, tokenindex) %>%
-    mutate(meanDurAll = mean(dur), medianDurAll = median(dur)) %>%
-    ungroup()  # Ungroup to revert to default behavior
-
-# View the resulting data frame
-head(df1)
+article <- article %>%
+    group_by(token, tokenindex, textnr) %>%
+    mutate(meanDurAll = mean(dur), medianDurAll = median(dur), .groups = 'drop')
 ```
-
-Median duration of each token for each language group-
+Median duration of each token for each language group.
 ```{r calc_language}
 median_duration <- article %>%
-  group_by(tokenindex, lang, token) %>%
-  summarise(medianDur = median(dur)) %>%
+  group_by(textnr, tokenindex, token, lang) %>%
+  summarise(medianDur = median(dur), .groups = 'drop') %>%
   spread(lang, medianDur, sep = "_") %>%
   rename_with(~gsub("^lang_", "median_", .), starts_with("lang_")) %>%
-  rename(tokenindex = tokenindex, token = token)
+  rename(textnr = textnr, tokenindex = tokenindex, token = token)
 ```
 
 ```{r join_results}
-article <- left_join(article, median_duration, by = c("token", "tokenindex"))
+article <- left_join(article, median_duration, by = c("token", "tokenindex", "textnr"))
 rm(median_duration)
 ```
 
@@ -186,9 +176,16 @@ ggplot(article, aes(x = lang, y = dur, fill = lang)) +
 ```{r mean_participant}
 df2 <- article %>% group_by(participant_id) %>% summarize(mean_duration = mean(dur), L1) 
 df2 <- unique(df2)
+```
 
-df2[df2$mean_duration == max(df2$mean_duration), ] # slowest reader
-df2[df2$mean_duration == min(df2$mean_duration), ] # fastest reader
+```{r}
+cat("Slowest reader: ", 
+    df2$participant_id[df2$mean_duration == max(df2$mean_duration)], ",",
+    round(max(df2$mean_duration)),"ms", "\n")
+
+cat("Fastest reader: ", 
+    df2$participant_id[df2$mean_duration == min(df2$mean_duration)], ",",
+    round(min(df2$mean_duration)), "ms")
 ```
 
 The following density plot shows the mean reading times for each participant split between L1 and L2.
