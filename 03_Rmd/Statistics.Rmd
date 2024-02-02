@@ -176,7 +176,7 @@ article <- article %>%
 ## Descriptive Statistics
 ### Participants
 ```{r mean_participant}
-aggregated_duration <- article %>% 
+participant_mean <- article %>% 
   group_by(participant_id) %>% 
   reframe(mean_duration = mean(dur), L1) %>%
   distinct()
@@ -184,21 +184,21 @@ aggregated_duration <- article %>%
 
 ```{r}
 cat("Slowest reader: ", 
-    aggregated_dur$participant_id[aggregated_duration$mean_duration == max(aggregated_duration$mean_duration)], ",",
-    round(max(aggregated_duration$mean_duration)),"ms", "\n")
+    participant_mean$participant_id[participant_mean$mean_duration == max(participant_mean$mean_duration)], ",",
+    round(max(participant_mean$mean_duration)),"ms", "\n")
 
 cat("Fastest reader: ", 
-    aggregated_duration$participant_id[aggregated_duration$mean_duration == min(aggregated_duration$mean_duration)], ",",
-    round(min(aggregated_duration$mean_duration)), "ms")
+    participant_mean$participant_id[participant_mean$mean_duration == min(participant_mean$mean_duration)], ",",
+    round(min(participant_mean$mean_duration)), "ms")
 ```
 
 The following density plot shows the mean reading times for each participant split between L1 and L2.
 ```{r density}
-L1L2_mean <- aggregated_duration %>%
+L1L2_mean <- participant_mean %>%
   group_by(L1) %>%
   summarize(L1L2_mean_dur = mean(mean_duration))
 
-ggplot(aggregated_duration, aes(x = mean_duration, fill = L1)) +
+ggplot(participant_mean, aes(x = mean_duration, fill = L1)) +
   geom_density(alpha = 0.75) +
   geom_vline(data=L1L2_mean, aes(xintercept=L1L2_mean_dur, linetype = L1)) +
   labs(title = "Mean Reading Times between L1 and L2",
