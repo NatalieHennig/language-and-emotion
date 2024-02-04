@@ -89,7 +89,7 @@ participant = article$participant_id
 
 How do I get bigrams?
 ```{r surprisal, eval=FALSE, include=FALSE}
-bnc_size = 97626093
+bnc_size = 96928173 # total frequencies from the prepared file (bnc whole) without punctuation
 
 article <- article %>% 
   mutate(

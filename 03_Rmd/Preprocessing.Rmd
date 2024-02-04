@@ -67,7 +67,7 @@ eye_table <- joint.data %>% select(uniform_id, lang, itemid, ianum, ia, skip, nf
 eye_table <- eye_table %>% rename("participant_id" = "uniform_id", "textnr" = "itemid", "tokenindex" = "ianum", "token"="ia") 
 ```
 
-#### Sort by token index
+3. Sort by token index
 Such that the words in the article are ordered. 
 ```{r ordered_words}
 eye_table <- eye_table %>% group_by(textnr, participant_id) %>% arrange(tokenindex, .by_group = TRUE) %>% distinct()
@@ -80,7 +80,6 @@ eye_table <- eye_table %>% mutate(punctuation = ifelse(str_detect(token, "[[:pun
 eye_table$token = removePunctuation(eye_table$token) 
 ```
 
-
 #### Word Length
 The word length is calculated by the number of characters.
 ```{r token_length}
@@ -88,9 +87,10 @@ eye_table$word_length = nchar(eye_table$token)
 ```
 
 #### Add POS-Tags
-spacy_parse *(spaCy Version: 3.4.1, language model: en_core_web_sm)* is used to add POS tags to the words. It contains both a detailed set *tags*, as well as a less fine-grained universal set *pos*.The POS tags are based on the **Penn Treebank** tag set.
+spacy_parse *(spaCy Version: 3.4.1, language model: en_core_web_sm)* is used to add POS tags to the words. 
+It contains both a detailed set *tags*, as well as a less fine-grained universal set *pos*.The POS tags are based on the **Penn Treebank** tag set.
 ```{r parsing, eval=FALSE, message=FALSE, include=FALSE, results='hide'}
-spacy_install(envname = "./thesis23/bin/python", python_version = "3.10")
+#spacy_install(envname = "./thesis23/bin/python", python_version = "3.10")
 spacy_initialize()
 
 POS = spacy_parse(eye_table$token, tag=TRUE)
@@ -125,51 +125,81 @@ eye_table$lemma <- POS$lemma
 ```
 
 #### Word Frequency
-Frequencies are from the BNC. 
+Frequencies are from the BNC. The BNC CQP-Web version contains 98,313,429 tokens. Only tokens with frequencies >1 are extracted. 
 ```{r get_frequency, message=FALSE}
-frequency_whole <- read.csv(here("01_data", "frequency", "whole_frequency_list.csv"))
-frequency_spoken <- read.csv(here("01_data", "frequency", "spoken_frequency_list.csv"))
-frequency_written <- read.csv(here("01_data","frequency", "written_frequency_list.csv"))
-```
+# POS were mapped using a python script (CLAWS to Penn)
+frequency_whole <- read.csv(here("01_data", "frequency", "mapped_pos_frequency.csv"))
 
-```{r map_pos}
-source(here("04_scripts","03_CLAWS_mapping.R"), local = knitr::knit_global())
-
-frequency_spoken <- process_frequency(frequency_spoken)
-print(frequency_spoken)
+frequency_whole <- frequency_whole %>% group_by(Word, Tag) %>%
+    summarise(frequency = sum(Frequency))
 ```
 Duplicates are summed because there are multiple tags such as *AJ0* and *AJ0-NN1*, which both are changed to *ADJ*.
 
 ```{r add_frequency}
 eye_table <- eye_table %>% mutate(token.lower = tolower(token))
 
-eye_table <- left_join(eye_table, frequency_spoken, by = c("token.lower" = "Word", "pos" = "mapped_pos")) %>%
+eye_table <- left_join(eye_table, frequency_whole, by = c("token.lower" = "Word", "pos" = "Tag")) %>%
   mutate(frequency = replace(frequency, is.na(frequency), 0))
 ```
 
+```{r extract_unmatched_frequencies}
+# Missing frequencies for the words and pos combination in eye_table
+missing_frequency <- subset(eye_table, frequency == 0)
+missing_frequency <- unique(missing_frequency[, c("token.lower", "pos")])
+
+# Words that exist in the frequency list
+not_matched_token = unique(eye_table$token.lower[which(eye_table$frequency == 0)])
+not_matched <- subset(frequency_whole, frequency_whole$Word %in% not_matched_token)
+```
+Possibilities:
+- **Case 1:** There exist multiple entries in *eye_table* with different tags for the same token
+- **Case 2:** A token in the *eye_table* does not exist in the frequency list
+- **Case 3:** Tags from the frequency table diverge from the ones in *eye_table* 
+
+```{r case_1}
+length(missing_frequency$token.lower)
+length(unique(missing_frequency$token.lower))
+```
+Only *rainforest* occurs twice but it can be treated as a noun:
+- rainforest PROPN
+- rainforest X
+
+```{r case_2}
+# Number of tokens not in the frequency list
+length(unique(missing_frequency$token.lower)) - length(unique(not_matched$Word))
+
+setdiff(unique(missing_frequency$token.lower), unique(not_matched$Word))
+```
+
+```{r case_3}
+# Drop the Tag column
+not_matched <- select(not_matched, -c(Tag))
+
+# Combine without tags
+eye_table <- anti_join(eye_table, not_matched, by = c("token.lower" = "Word")) 
+```
+
+```{r calculate_outcome}
+missing_frequency <- subset(eye_table, frequency == 0)
+missing_frequency <- unique(missing_frequency[, c("token.lower", "pos")])
+
+(sum(eye_table$frequency==0)/length(eye_table$frequency))*100
+sum(eye_table$frequency==0)
+length(eye_table$frequency)
+```
+
 ```{r remove_freq_dfs}
-rm(frequency_spoken, frequency_written, frequency_whole)
+rm(frequency_whole, missing_frequency, not_matched)
 ```
-
-
-#### Calculate frequency per million words
-The BNC CQP-Web version contains 98,313,429 tokens.
-```{r freq_per_mill}
-#(freq / 98313429) * 1000000000
-```
-
 
 #### Identify stopwords
 ```{r stopwords}
-# Get English stopwords
 english_stopwords <- stopwords("en")
 
-# Identify stopwords in the 'tokens' column
-stopwords_in_tokens <- tolower(eye_table$token) %in% english_stopwords
-
 # Add a new column to indicate stopwords
-eye_table$is_stopword <- as.integer(stopwords_in_tokens)
+eye_table$is_stopword <- as.integer(eye_table$token.lower %in% english_stopwords)
 ```
+
 #### Ensure data quality
 Count the number of words in each text to see if "ia" equals the token.
 ```{r quality_check_ia, eval=FALSE}
@@ -487,16 +517,15 @@ filtered_reading_time_data <- filtered_reading_time_data %>% left_join(individua
 
 **filtered_reading_time_data** is the preprocessed datafile.
 ```{r export}
-write.csv(filtered_reading_time_data, here("05_output", "reading_times.csv"), row.names = FALSE)
+write.csv(filtered_reading_time_data, here("05_output", "reading_times2.csv"), row.names = FALSE)
 ```
-
 
 ```{r remove_text_dfs}
 rm(text1, text2, text3, text4,text5,text6, text7, text8, text9, text10, text11, text12)
 ```
 
-```{r}
-rm(comprehension_acc, leap_q, id_tests)
-rm(eye_table, subset_texts, reading_time_data, filtered_reading_time_data)
+```{r remove_dfs}
+rm(comprehension_acc, leap_q, id_tests, individual_diffs)
+rm(eye_table, subset_texts, reading_time_data)
 ```
 
