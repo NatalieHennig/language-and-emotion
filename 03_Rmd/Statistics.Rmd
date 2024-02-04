@@ -14,7 +14,7 @@ library(here)
 
 ## Dataset
 ```{r load_data, message=FALSE}
-RT_data <- read_csv(here("05_output", "reading_times.csv"), col_names=TRUE, id=NULL)
+RT_data <- read_csv(here("05_output", "reading_times2.csv"), col_names=TRUE, id=NULL)
 ```
 
 ```{r participant_count}

@@ -128,7 +128,7 @@ eye_table$lemma <- POS$lemma
 Frequencies are from the BNC. The BNC CQP-Web version contains 98,313,429 tokens. Only tokens with frequencies >1 are extracted. 
 ```{r get_frequency, message=FALSE}
 # POS were mapped using a python script (CLAWS to Penn)
-frequency_whole <- read.csv(here("01_data", "frequency", "mapped_pos_frequency.csv"))
+frequency_whole <- read.csv(here("05_output", "mapped_pos_frequency.csv"))
 
 frequency_whole <- frequency_whole %>% group_by(Word, Tag) %>%
     summarise(frequency = sum(Frequency))
@@ -176,8 +176,16 @@ setdiff(unique(missing_frequency$token.lower), unique(not_matched$Word))
 not_matched <- select(not_matched, -c(Tag))
 
 # Combine without tags
-eye_table <- anti_join(eye_table, not_matched, by = c("token.lower" = "Word")) 
+eye_table <- left_join(eye_table, not_matched, by = c("token.lower" = "Word")) 
 ```
+
+```{r}
+eye_table$frequency <- rowSums(eye_table[, c("frequency.x", "frequency.y")], na.rm = TRUE)
+
+# Remove frequency.x and frequency.y 
+eye_table <- eye_table[, !(names(eye_table) %in% c("frequency.x", "frequency.y"))]
+```
+
 
 ```{r calculate_outcome}
 missing_frequency <- subset(eye_table, frequency == 0)
@@ -300,7 +308,7 @@ Attach the valency scores to the main tables.
 ```{r merge_vader}
 
 for (i in 1:12) { 
-  file_path <- here("05_output", paste0(i, "_vader_scores.csv"))
+  file_path <- here("05_output", "vader_scores", paste0(i, "_vader_scores.csv"))
   
   # Check if the file exists before attempting to read it
   if (file.exists(file_path)) {

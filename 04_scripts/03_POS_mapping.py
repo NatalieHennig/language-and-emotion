@@ -1,6 +1,6 @@
 import pandas as pd
 
-df = pd.read_csv('/Users/nataliehennig/Documents/language-and-emotion/01_data/frequency/list_whole.csv', encoding="latin-1")
+df = pd.read_csv('/Users/nataliehennig/Documents/language-and-emotion/01_data/frequency_whole.csv', encoding="latin-1")
 
 tag_mapping = {
     "PROPN": ["NP0", "NP0-NN1"],
@@ -23,6 +23,6 @@ reverse_mapping = {value: key for key, values in tag_mapping.items() for value i
 
 df['Tag'] = df['Tag'].replace(reverse_mapping)
 
-df.to_csv('/Users/nataliehennig/Documents/language-and-emotion/01_data/frequency/mapped_pos_frequency.csv', index=False)
+df.to_csv('/Users/nataliehennig/Documents/language-and-emotion/05_output/mapped_pos_frequency.csv', index=False)
 
 
