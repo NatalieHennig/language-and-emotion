@@ -31,7 +31,7 @@ library(here)
 - *stringr*: to manipulate strings
 - *readxl*: to read excel files
 
-```{r libraries, results="hide", message=FALSE}
+```{r libraries, message=FALSE, warning=FALSE, results="hide"}
 library(dplyr)
 library(reticulate)
 library(quanteda)
@@ -57,7 +57,7 @@ load(here("01_data", "meco L2", "primary data","eye tracking data","joint_data_l
 # Preprocessing
 ### Create table
 1.  Define which columns are relevant. The relevant columns will be used to create a concise table for subsequent analysis.
-Note: *Subid* is not needed, because the leap-q files contain a *uniform_id*, which acts as a key. Only **ee.xlsx** does not have a *uniform_id* -> needs further preprocessing.
+*Subid* is not needed, because the leap-q files contain a *uniform_id*, which acts as a key. 
 ```{r select_columns}
 eye_table <- joint.data %>% select(uniform_id, lang, itemid, ianum, ia, skip, nfix, refix, dur, firstrun.dur, firstrun.gopast, firstrun.gopast.sel, firstfix.dur)
 ```
@@ -67,8 +67,7 @@ eye_table <- joint.data %>% select(uniform_id, lang, itemid, ianum, ia, skip, nf
 eye_table <- eye_table %>% rename("participant_id" = "uniform_id", "textnr" = "itemid", "tokenindex" = "ianum", "token"="ia") 
 ```
 
-3. Sort by token index
-Such that the words in the article are ordered. 
+3. Sort by token index, such that the words in the article are ordered. 
 ```{r ordered_words}
 eye_table <- eye_table %>% group_by(textnr, participant_id) %>% arrange(tokenindex, .by_group = TRUE) %>% distinct()
 ```
@@ -101,8 +100,8 @@ write.csv(POS, here("05_output", "pos_tags.csv"))
 
 #merged_data <- merge(eye_table, x, by = 'token')
 ```
-
-For some reasons, after adding the POS with spacey, the dataset contained 657'993 rows instead of 656'000. After comparing the differences, it appeared that there were multiple empty rows that were labeled **PUNCT**. These rows were discarded.
+For some reasons, after adding the POS with spacey, the dataset contained 657'993 rows instead of 656'000. 
+After comparing the differences, it appeared that there were multiple empty rows that were labeled **PUNCT**. These rows were discarded.
 
 Code: 
 ```
@@ -179,21 +178,20 @@ not_matched <- select(not_matched, -c(Tag))
 eye_table <- left_join(eye_table, not_matched, by = c("token.lower" = "Word")) 
 ```
 
-```{r}
+```{r consolidate_columns}
 eye_table$frequency <- rowSums(eye_table[, c("frequency.x", "frequency.y")], na.rm = TRUE)
 
 # Remove frequency.x and frequency.y 
 eye_table <- eye_table[, !(names(eye_table) %in% c("frequency.x", "frequency.y"))]
 ```
 
-
 ```{r calculate_outcome}
 missing_frequency <- subset(eye_table, frequency == 0)
 missing_frequency <- unique(missing_frequency[, c("token.lower", "pos")])
 
-(sum(eye_table$frequency==0)/length(eye_table$frequency))*100
-sum(eye_table$frequency==0)
-length(eye_table$frequency)
+cat("Percentage of missing frequency values:",  round(((sum(eye_table$frequency==0)/length(eye_table$frequency))*100), 2), "%\n")
+#sum(eye_table$frequency==0)
+#length(eye_table$frequency)
 ```
 
 ```{r remove_freq_dfs}
@@ -348,7 +346,6 @@ texts_listed <- list("text1", "text2", "text3", "text4", "text5", "text6", "text
 for (text_name in texts_listed) {
   add_anew_score(text_name)
 }
-
 ```
 
 #### SentiArt
@@ -387,7 +384,7 @@ for (text_name in texts_listed) {
 ```
 *Note*: The coverage increases for ANEW, when lemmas instead of tokens are used. This can't be done for VADER, as it influences the intensity while the coverage remains the same.
 
-```{r remove_dataframes}
+```{r remove_dfs}
 rm("merger", "POS", "texts_listed", "vader_scores", "joint.data", "text_df", "text_in", "senti_scores")
 ```
 
@@ -419,11 +416,8 @@ Texts 1, 2, 3, and 4 have over 400 participants.
 
 ```{r texts_read}
 subset_overlap <- select(overlap, c("participant_id", "1", "2", "3", "4"))
-
 subset_texts <- subset_overlap %>% filter(if_all(all_of(names(.)[-1]), ~. == 1))
-print(subset_texts)
-```
-```{r lang_count}
+
 # Create a new column for language
 subset_texts <- subset_texts %>%
   mutate(language = substr(participant_id, 1, 2))
@@ -433,10 +427,9 @@ subset_texts %>%
   group_by(language) %>%
   summarise(participant_count = n())
 ```
-```{r}
+```{r remove_dfs}
 rm(overlap, all_texts, subset_overlap)
 ```
-
 
 # Individual Differences 
 ```{r load_id_files}
@@ -467,11 +460,8 @@ comprehension_acc <- comprehension %>%
     accuracy = (correct_answer / total_answer)*100
   )
 
-
 rm(comprehension_raw, comprehension)
 ```
-
-
 Combined files of leap-q, the tests and comprehension data. Comprehension data is preprocessed and only includes accuracy for 1-4.
 **Note**: The leap-q file is missing 5 participants: 
 - *en_90*
@@ -486,7 +476,6 @@ individual_diffs <- individual_diffs %>% reduce(full_join, by='uniform_id')
 
 individual_diffs <- individual_diffs %>% select(-c(total_answer, correct_answer, subid, lang)) %>% rename(participant_id = uniform_id, comprehension_acc = accuracy) %>% mutate(start_learning = as.integer(start_learning), fluent = as.integer(fluent), reading = as.integer(reading), reading_fluent = as.integer(reading_fluent)) %>% select(participant_id, everything())
 ```
-
 
 58 participants have a comprehension score of less than 50% for texts 1-4. **low_accuracy** returns the participant ids.
 ```{r get_participants_low_acc}
@@ -506,7 +495,6 @@ subset_texts %>%
 
 rm(low_accuracy)
 ```
-
 # Prepare dataframes for export and merge with individual differences
 ```{r concatenate_texts}
 reading_time_data <- bind_rows(text1, text2, text3, text4)
@@ -529,7 +517,7 @@ write.csv(filtered_reading_time_data, here("05_output", "reading_times2.csv"), r
 ```
 
 ```{r remove_text_dfs}
-rm(text1, text2, text3, text4,text5,text6, text7, text8, text9, text10, text11, text12)
+rm(text1, text2, text3, text4, text5, text6, text7, text8, text9, text10, text11, text12)
 ```
 
 ```{r remove_dfs}
