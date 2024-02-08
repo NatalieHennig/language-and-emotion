@@ -123,7 +123,6 @@ article <- article %>% select(textnr, lang, L1, participant_id,
 ```
 
 ## Means and Medians 
-TODO: This doesn't say much because we need to take the other variables into account.
 ```{r}
 article %>%
     group_by(AAPz_cat, lang) %>%
@@ -167,12 +166,6 @@ article <- article %>%
   group_by(textnr, token, tokenindex, L1) %>%
   mutate(median_L1L2 = median(dur), .after = log_dur)
 ```
-
-```{r percentage_0}
-(sum(article$median_L1L2==0)/length(article$median_L1L2))*100
-```
-**important:** Median contains a lot of 0! mean performs better! However, need to check for the larger numbers.
-
 ## Descriptive Statistics
 ### Participants
 ```{r mean_participant}
@@ -217,8 +210,25 @@ article %>% group_by(lang) %>%
             standard_deviation = round(sd(dur)))
 ```
 
+```{r percentage_0}
+cat("Percentage of 0ms duration (skipped words) using",
+    "\n the mean: ",(sum(article$mean_dur==0)/length(article$mean_dur))*100,
+    "\n the median: ", round((sum(article$median_dur==0)/length(article$median_dur))*100, 2),
+    "\n the median between L1 and L2: ",(round(sum(article$median_L1L2==0)/length(article$median_L1L2)*100, 2)),
+    "\n overall: ",round((sum(article$dur==0)/length(article$dur))*100, 2))
+```
+**important:** Median contains a lot of 0! Mean performs better! However, the disadvantage of the mean is that the durations are much higher overall.
+
+```{r percentage_0_by_lang}
+article %>%
+  group_by(lang) %>%
+  summarise(zero_dur = round((sum(dur == 0) / n()) * 100, 2),
+            zero_dur_lang = round((sum(median_lang == 0) / n()) * 100, 2))
+```
+
+
 ```{r plot_1}
-ggplot(article, aes(x = lang, y = dur, fill = lang)) +
+ggplot(article, aes(x = lang, y = median_lang, fill = lang)) +
   geom_boxplot() +
   scale_y_continuous(limits = c(0, 1000)) +
   scale_fill_manual(values = terrain.colors(9)) +
