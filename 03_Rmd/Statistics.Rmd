@@ -64,18 +64,6 @@ There are also AAPz scores for stopwords. The following code snippet changes all
 valency = article$AAPz
 ```
 
-```{r categorical_valency}
-# Turn into categorical
-positive = 0.1
-negative = -0.1
-
-article <- article %>%
-  mutate(AAPz_cat = case_when(
-    AAPz > positive ~ "Positive",
-    AAPz < negative ~ "Negative",
-    TRUE ~ "Neutral"))
-```
-
 ```{r confounding_var}
 # lexical-level 
 word_length = article$word_length
@@ -110,7 +98,7 @@ article <- article %>% select(textnr, lang, L1, participant_id,
                               tokenindex, token,
                               skip, pos, is_stopword,
                               dur, log_dur,
-                              AAPz, AAPz_cat, anew_score, vader_score,
+                              AAPz, anew_score, vader_score,
                               punctuation, word_length, frequency, 
                               motiv, lextale, cft20, 
                               start_learning,
@@ -122,14 +110,40 @@ article <- article %>% select(textnr, lang, L1, participant_id,
 # spelling, TOWRE_word, TOWRE_nonword, vocab, vocab.t2.5
 ```
 
-## Means and Medians 
+## Valency
+```{r categorical_valency}
+# Turn into categorical
+positive = 0.1
+negative = -0.1
+
+article <- article %>%
+  mutate(AAPz_cat = case_when(
+    AAPz > positive ~ "Positive",
+    AAPz < negative ~ "Negative",
+    TRUE ~ "Neutral"), .after = AAPz)
+```
+
 ```{r}
 article %>%
     group_by(AAPz_cat, lang) %>%
-    summarise(val = median(dur)) %>% 
+    summarise(val = median(dur), .groups = "drop") %>% 
   pivot_wider(names_from = AAPz_cat, values_from = val)
 ```
 
+```{r}
+article %>%
+    group_by(AAPz_cat, lang) %>%
+    summarise(val = median(dur), .groups = "drop") %>%
+  ggplot(aes(x = AAPz_cat, y = val, color = lang, group = lang)) +
+  geom_point() +
+  geom_line() +
+  #facet_wrap(~lang) +
+  labs(x = "Valency", y = "Median Duration", color = "Language") +
+  theme_minimal()
+```
+**Important:** This doesn't say much about the reading times with respect to valency because other variables (such as word length) need to be considered as well.
+
+## Means and Medians 
 #### Mean and median across all readers for each word
 ```{r calc_all}
 article %>%
@@ -138,7 +152,7 @@ article %>%
 
 article <- article %>%
     group_by(token, tokenindex, textnr) %>%
-    mutate(mean_dur = mean(dur), median_dur = median(dur))
+    mutate(mean_dur = mean(dur), median_dur = median(dur), .after=log_dur)
 ```
 
 #### Median across language group for each word
@@ -152,7 +166,7 @@ article %>%
 
 article <- article %>%
   group_by(textnr, token, tokenindex, lang) %>%
-  mutate(median_lang = median(dur), .after = log_dur)
+  mutate(median_lang = median(dur), .after = median_dur)
 ```
 
 #### Median across L1 and L2 for each word
@@ -164,7 +178,7 @@ article %>%
 
 article <- article %>%
   group_by(textnr, token, tokenindex, L1) %>%
-  mutate(median_L1L2 = median(dur), .after = log_dur)
+  mutate(median_L1L2 = median(dur), .after = median_dur)
 ```
 ## Descriptive Statistics
 ### Participants
