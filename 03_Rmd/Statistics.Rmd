@@ -296,18 +296,52 @@ ggplot(part_correlation, aes(x = lang, y = cor_valency, fill = lang)) +
 Multifactorial linear regression analysis. Step-down and step-up analysis, including interactions between variables.
 
 ### RQ1
-When taking the median of all, *exposure_EN + cft20 + lextale + motiv + start_learning* doesn't make sense to be included.
+When taking the median of all, *exposure_EN + cft20 + lextale + motiv + start_learning* doesn't make sense to be included. 
+**Question:** why is the estimate significant even when ANEW or VADER is used for valency?
 ```{r RQ1}
 summary(lm(median_dur ~ word_length + word_frequency + punctuation + valency, data = article))
 ```
 
 ### RQ2
-**Note:** Do the variables *exposure_EN + cft20 + lextale + motiv + start_learning* need to be medians between language groups?
 ```{r RQ2}
 summary(lm(median_lang ~ word_length + word_frequency + punctuation + valency + 
              exposure_EN + cft20 + lextale + motiv + start_learning 
            + lang + valency:lang, data = article)) 
 ```
+```{r RQ2_cat}
+#article$AAPz_cat <- factor(article$AAPz_cat)
+#article$AAPz_cat <- relevel(article$AAPz_cat, ref = "Neutral")
+
+summary(lm(median_lang ~ word_length + word_frequency + punctuation 
+           + AAPz_cat:lang
+           + AAPz_cat:word_length + AAPz_cat:word_frequency + AAPz_cat:punctuation, data = article)) 
+```
+
+**Note:** Do the variables *exposure_EN + cft20 + lextale + motiv + start_learning* need to be medians between language groups?
+```{r RQ2_df}
+RQ2_df <- article %>% group_by(lang, textnr, tokenindex, token) %>% 
+  reframe(median_lang, word_length, frequency, punctuation, AAPz, 
+          mean_exposure = round(mean(exposure_EN)), 
+          mean_cft = round(mean(cft20)), 
+          mean_lextale = round(mean(lextale)), 
+          mean_motiv = round(mean(motiv)), 
+          mean_start = round(mean(start_learning))) %>%
+  distinct()
+```
+why is *ee* mean_start *NA*?
+
+```{r}
+summary(lm(median_lang ~ word_length + frequency + punctuation + AAPz + 
+             mean_exposure + mean_cft + mean_lextale + mean_motiv + mean_start 
+           + lang + AAPz:lang, data = RQ2_df)) 
+```
+```{r}
+summary(lm(median_lang ~ word_length + frequency + punctuation + AAPz + 
+             mean_exposure + mean_cft + mean_lextale + AAPz:lang,
+             data = RQ2_df)) 
+```
+**Question**: WHy are some languages not included?
+
 
 ### RQ3
 **Note:** Do the variables *exposure_EN + cft20 + lextale + motiv + start_learning* need to be medians between L1 and L2?
