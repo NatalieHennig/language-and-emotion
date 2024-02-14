@@ -59,7 +59,7 @@ log_duration = article$log_dur
 There are also AAPz scores for stopwords. The following code snippet changes all AAPz scores for stopwords to 0.
 ```{r independent_var}
 # Update the AAPz column where is_stopword is 1
-#article$AAPz[article$is_stopword == 1] <- 0
+article$AAPz[article$is_stopword == 1] <- 0
 
 valency = article$AAPz
 ```
@@ -297,9 +297,17 @@ Multifactorial linear regression analysis. Step-down and step-up analysis, inclu
 
 ### RQ1
 When taking the median of all, *exposure_EN + cft20 + lextale + motiv + start_learning* doesn't make sense to be included. 
-**Question:** why is the estimate significant even when ANEW or VADER is used for valency?
-```{r RQ1}
-summary(lm(median_dur ~ word_length + word_frequency + punctuation + valency, data = article))
+**Question:** why is the estimate significant even when ANEW or VADER is used for valency? -> Because the measures are repeated for each participant. This needs to be changed.
+```{r RQ1_data}
+RQ1_df <- article %>%
+  group_by(textnr, token, tokenindex) %>%
+  select(textnr, tokenindex, token, mean_dur, median_dur, AAPz, AAPz_cat, anew_score, punctuation, word_length, frequency) %>%
+  distinct()
+```
+
+
+```{r RQ1} 
+summary(lm(median_dur ~ word_length + frequency + punctuation + AAPz, data = RQ1_df))
 ```
 
 ### RQ2
@@ -308,7 +316,7 @@ summary(lm(median_lang ~ word_length + word_frequency + punctuation + valency +
              exposure_EN + cft20 + lextale + motiv + start_learning 
            + lang + valency:lang, data = article)) 
 ```
-```{r RQ2_cat}
+```{r RQ2_cat, eval=FALSE, include=FALSE}
 #article$AAPz_cat <- factor(article$AAPz_cat)
 #article$AAPz_cat <- relevel(article$AAPz_cat, ref = "Neutral")
 
@@ -318,7 +326,7 @@ summary(lm(median_lang ~ word_length + word_frequency + punctuation
 ```
 
 **Note:** Do the variables *exposure_EN + cft20 + lextale + motiv + start_learning* need to be medians between language groups?
-```{r RQ2_df}
+```{r RQ2_df, eval=FALSE, include=FALSE}
 RQ2_df <- article %>% group_by(lang, textnr, tokenindex, token) %>% 
   reframe(median_lang, word_length, frequency, punctuation, AAPz, 
           mean_exposure = round(mean(exposure_EN)), 
@@ -328,14 +336,14 @@ RQ2_df <- article %>% group_by(lang, textnr, tokenindex, token) %>%
           mean_start = round(mean(start_learning))) %>%
   distinct()
 ```
-why is *ee* mean_start *NA*?
+why is *ee* mean_start *NA*? There are some missing values, these participants will be excluded.
 
-```{r}
+```{r eval=FALSE, include=FALSE}
 summary(lm(median_lang ~ word_length + frequency + punctuation + AAPz + 
              mean_exposure + mean_cft + mean_lextale + mean_motiv + mean_start 
            + lang + AAPz:lang, data = RQ2_df)) 
 ```
-```{r}
+```{r eval=FALSE, include=FALSE}
 summary(lm(median_lang ~ word_length + frequency + punctuation + AAPz + 
              mean_exposure + mean_cft + mean_lextale + AAPz:lang,
              data = RQ2_df)) 
@@ -361,8 +369,8 @@ drop1(RQ3, test = "F")
 
 ## Linear Mixed-Models
 Comment: Would need ANOVA to see which model is more significant
-```{r eval=FALSE, include=FALSE}
-summary(lmer(log_duration ~ valency + (1 + valency | word_length)))
+```{r}
+#summary(lmer(log_duration ~ valency + (1 + valency | word_length)))
 summary(lmer(log_duration ~ valency + (1 + valency | participant)))
-summary(lmer(log_duration ~ valency + (1 + valency | participant) + (1 | word_length)))
+#summary(lmer(log_duration ~ valency + (1 + valency | participant) + (1 | word_length)))
 ```
