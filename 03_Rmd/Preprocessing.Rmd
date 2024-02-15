@@ -127,7 +127,7 @@ eye_table$lemma <- POS$lemma
 Frequencies are from the BNC. The BNC CQP-Web version contains 98,313,429 tokens. Only tokens with frequencies >1 are extracted. 
 ```{r get_frequency, message=FALSE}
 # POS were mapped using a python script (CLAWS to Penn)
-frequency_whole <- read.csv(here("05_output", "mapped_pos_frequency.csv"))
+frequency_whole <- read.csv(here("05_output", "mapped_pos_frequency.csv"), stringsAsFactors = FALSE, colClasses = c(Word = "character"))
 
 frequency_whole <- frequency_whole %>% group_by(Word, Tag) %>%
     summarise(frequency = sum(Frequency))
@@ -153,7 +153,8 @@ not_matched <- subset(frequency_whole, frequency_whole$Word %in% not_matched_tok
 Possibilities:
 - **Case 1:** There exist multiple entries in *eye_table* with different tags for the same token
 - **Case 2:** A token in the *eye_table* does not exist in the frequency list
-- **Case 3:** Tags from the frequency table diverge from the ones in *eye_table* 
+- **Case 3:** Different spellings / others
+- **Case 4:** Tags from the frequency table diverge from the ones in *eye_table*
 
 ```{r case_1}
 length(missing_frequency$token.lower)
@@ -169,8 +170,30 @@ length(unique(missing_frequency$token.lower)) - length(unique(not_matched$Word))
 
 setdiff(unique(missing_frequency$token.lower), unique(not_matched$Word))
 ```
+Not in the BNC:
+ - napster
+ - spyware
+ - hemorrhages
 
+In the BNC:
+ - lead (without ""!)
+ - kinaesthetic (written with a)
+ - true
+ without 's:
+ - one
+ - today
+ - vinci
+ 
 ```{r case_3}
+eye_table$frequency[eye_table$token == "one’s"] <- 2
+eye_table$frequency[eye_table$token == "today’s"] <- 25765
+eye_table$frequency[eye_table$token == "Vinci’s"] <- 59
+eye_table$frequency[eye_table$token == "kinesthetic"] <- 6
+eye_table$frequency[eye_table$token == "“lead”"] <- 14324
+eye_table$frequency[eye_table$token == "true"] <- 17718
+```
+
+```{r case_4}
 # Drop the Tag column
 not_matched <- select(not_matched, -c(Tag))
 
