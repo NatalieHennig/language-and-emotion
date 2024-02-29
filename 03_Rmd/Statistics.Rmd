@@ -10,6 +10,7 @@ library(dplyr)
 library(tidyr)
 library(readr)
 library(here)
+library(lmerTest)
 ```
 
 ## Dataset
@@ -68,6 +69,7 @@ valency = article$AAPz
 # lexical-level 
 word_length = article$word_length
 word_frequency = article$frequency
+article <- article %>% mutate(log_freq = log(frequency))
 #predictability = TBD
 POS = article$pos
 
@@ -99,7 +101,7 @@ article <- article %>% select(textnr, lang, L1, participant_id,
                               skip, pos, is_stopword,
                               dur, log_dur,
                               AAPz, anew_score, vader_score,
-                              punctuation, word_length, frequency, 
+                              punctuation, word_length, frequency, log_freq,
                               motiv, lextale, cft20, 
                               start_learning,
                               exposure_EN
@@ -159,7 +161,7 @@ article <- article %>%
 Median duration of each token for each language group.
 ```{r calc_language}
 article %>%
-  group_by(textnr, token, tokenindex, lang) %>%
+  group_by(textnr, tokenindex, token, lang) %>%
   summarise(medianDur = median(dur), .groups = 'drop') %>%
   spread(lang, medianDur, sep = "_") %>%
   rename_with(~gsub("^lang_", "median_", .), starts_with("lang_"))
@@ -178,7 +180,7 @@ article %>%
 
 article <- article %>%
   group_by(textnr, token, tokenindex, L1) %>%
-  mutate(median_L1L2 = median(dur), .after = median_dur)
+  mutate(median_L1L2 = median(dur), mean_L1L2 = mean(dur), .after = median_dur)
 ```
 ## Descriptive Statistics
 ### Participants
@@ -295,27 +297,62 @@ ggplot(part_correlation, aes(x = lang, y = cor_valency, fill = lang)) +
 ## Linear Regression
 Multifactorial linear regression analysis. Step-down and step-up analysis, including interactions between variables.
 
+```{r factors}
+article$L1 <- factor(article$L1)
+article$punctuation <- factor(article$punctuation)
+article$is_stopword <- factor(article$is_stopword)
+```
+
+
 ### RQ1
 When taking the median of all, *exposure_EN + cft20 + lextale + motiv + start_learning* doesn't make sense to be included. 
 **Question:** why is the estimate significant even when ANEW or VADER is used for valency? -> Because the measures are repeated for each participant. This needs to be changed.
 ```{r RQ1_data}
 RQ1_df <- article %>%
   group_by(textnr, token, tokenindex) %>%
-  select(textnr, tokenindex, token, mean_dur, median_dur, AAPz, AAPz_cat, anew_score, punctuation, word_length, frequency) %>%
+  select(textnr, tokenindex, token, mean_dur, median_dur, AAPz, AAPz_cat, anew_score, punctuation, word_length, frequency, log_freq, is_stopword) %>%
   distinct()
 ```
 
-
 ```{r RQ1} 
-summary(lm(median_dur ~ word_length + frequency + punctuation + AAPz, data = RQ1_df))
+m1.1 <- lm(median_dur ~ word_length + frequency + punctuation + AAPz + is_stopword, data = RQ1_df)
+m1.2 <- lm(median_dur ~ word_length + log_freq + punctuation + AAPz + is_stopword , data = RQ1_df)
+
+# polynomial
+m1.3 <- lm(median_dur ~ word_length + frequency + punctuation + AAPz + I(AAPz^2) + is_stopword, data = RQ1_df)
+m1.4 <- lm(median_dur ~ word_length + log_freq + punctuation + AAPz + I(AAPz^2) + is_stopword, data = RQ1_df)
+
+summary(m1.1)
+summary(m1.2)
+summary(m1.3)
+summary(m1.4)
+
+summary(lm(mean_dur ~ word_length + log_freq + punctuation + AAPz + I(AAPz^2) + is_stopword + log_freq:(AAPz + I(AAPz^2)) + punctuation:(AAPz + I(AAPz^2)), data = RQ1_df))
 ```
 
 ### RQ2
-```{r RQ2}
-summary(lm(median_lang ~ word_length + word_frequency + punctuation + valency + 
-             exposure_EN + cft20 + lextale + motiv + start_learning 
-           + lang + valency:lang, data = article)) 
+```{r RQ2_df}
+RQ2_df <- article %>%
+  group_by(textnr, token, tokenindex) %>%
+  select(textnr, tokenindex, token, L1, median_lang, lang, AAPz, AAPz_cat, anew_score, punctuation, word_length, frequency, log_freq, is_stopword) %>%
+  distinct()
+
+RQ2_ru <- RQ2_df[RQ2_df$lang == 'ru',]
+RQ2_he <- RQ2_df[RQ2_df$lang == 'he',]
+RQ2_fi <- RQ2_df[RQ2_df$lang == 'fi',]
 ```
+
+```{r RQ2}
+RQ2.1 <- lm(median_lang ~ word_length + log_freq + punctuation + AAPz + I(AAPz^2) + is_stopword + log_freq:(AAPz + I(AAPz^2)) + punctuation:(AAPz + I(AAPz^2)), data = RQ2_ru)
+RQ2.2 <- lm(median_lang ~ word_length + log_freq + punctuation + AAPz + I(AAPz^2) + is_stopword + log_freq:(AAPz + I(AAPz^2)) + punctuation:(AAPz + I(AAPz^2)), data = RQ2_he)
+RQ2.3 <- lm(median_lang ~ word_length + log_freq + punctuation + AAPz + I(AAPz^2) + is_stopword + log_freq:(AAPz + I(AAPz^2)) + punctuation:(AAPz + I(AAPz^2)), data = RQ2_fi)
+
+summary(RQ2.1)
+summary(RQ2.2)
+summary(RQ2.3)
+```
+
+
 ```{r RQ2_cat, eval=FALSE, include=FALSE}
 #article$AAPz_cat <- factor(article$AAPz_cat)
 #article$AAPz_cat <- relevel(article$AAPz_cat, ref = "Neutral")
@@ -326,7 +363,7 @@ summary(lm(median_lang ~ word_length + word_frequency + punctuation
 ```
 
 **Note:** Do the variables *exposure_EN + cft20 + lextale + motiv + start_learning* need to be medians between language groups?
-```{r RQ2_df, eval=FALSE, include=FALSE}
+```{r RQ2_df_median, eval=FALSE, include=FALSE}
 RQ2_df <- article %>% group_by(lang, textnr, tokenindex, token) %>% 
   reframe(median_lang, word_length, frequency, punctuation, AAPz, 
           mean_exposure = round(mean(exposure_EN)), 
@@ -339,38 +376,64 @@ RQ2_df <- article %>% group_by(lang, textnr, tokenindex, token) %>%
 why is *ee* mean_start *NA*? There are some missing values, these participants will be excluded.
 
 ```{r eval=FALSE, include=FALSE}
+summary(lm(median_lang ~ word_length + word_frequency + punctuation + valency + 
+             exposure_EN + cft20 + lextale + motiv + start_learning 
+           + lang + valency:lang, data = article)) 
+
 summary(lm(median_lang ~ word_length + frequency + punctuation + AAPz + 
              mean_exposure + mean_cft + mean_lextale + mean_motiv + mean_start 
            + lang + AAPz:lang, data = RQ2_df)) 
-```
-```{r eval=FALSE, include=FALSE}
+
 summary(lm(median_lang ~ word_length + frequency + punctuation + AAPz + 
              mean_exposure + mean_cft + mean_lextale + AAPz:lang,
              data = RQ2_df)) 
 ```
-**Question**: WHy are some languages not included?
+**Question**: Why are some languages not included?
 
 
 ### RQ3
-**Note:** Do the variables *exposure_EN + cft20 + lextale + motiv + start_learning* need to be medians between L1 and L2?
-```{r RQ3}
-summary(lm(median_L1L2 ~ word_length + word_frequency + punctuation +
-             exposure_EN + cft20 + lextale + motiv + start_learning +
-             L1 + valency + valency:L1, data = article))
+```{r RQ3_data}
+RQ3_df <- article %>%
+  group_by(textnr, token, tokenindex) %>%
+  select(textnr, tokenindex, token, L1, median_L1L2, mean_L1L2, AAPz, AAPz_cat, anew_score, punctuation, word_length, frequency, log_freq, is_stopword) %>%
+  distinct()
 ```
 
+```{r RQ3}
+summary(lm(median_L1L2 ~ word_length + frequency + punctuation +
+             L1 + AAPz + AAPz:L1, data = RQ3_df))
+```
+```{r polynomial}
+summary(lm(median_L1L2 ~ word_length + frequency + punctuation +
+             L1 + AAPz + I(AAPz^2), RQ3_df))
+```
 ```{r feature_weights}
-RQ3 <- lm(median_L1L2 ~ word_length + word_frequency + punctuation + valency + exposure_EN + 
-          cft20 + lextale + motiv + start_learning, data = article)
+RQ3 <- lm(median_L1L2 ~ word_length + frequency + punctuation + AAPz + L1, data = RQ3_df)
 
 drop1(RQ3, test = "F")
 ```
 
+```{r RQ3_dfs}
+# Sort by column L1
+RQ3_df <- RQ3_df[order(RQ3_df$L1), ]
+
+# Split the data frame into two tables
+L1_RQ3 <- RQ3_df[1:(nrow(RQ3_df) / 2), ]
+L2_RQ3 <- RQ3_df[((nrow(RQ3_df) / 2) + 1):nrow(RQ3_df), ]
+```
+
+```{r L1_RQ3}
+RQ3_model1 <- lm(mean_L1L2 ~ word_length + log_freq + punctuation + AAPz + I(AAPz^2) + is_stopword + log_freq:(AAPz + I(AAPz^2)) + punctuation:(AAPz + I(AAPz^2)), data = L1_RQ3)
+summary(RQ3_model1)
+```
+```{r L2_RQ3}
+RQ3_model2 <- lm(mean_L1L2 ~ word_length + log_freq + punctuation + AAPz + I(AAPz^2) + is_stopword + log_freq:(AAPz + I(AAPz^2))+  log_freq:(AAPz + I(AAPz^2)) + punctuation:(AAPz + I(AAPz^2)), data = L2_RQ3)
+summary(RQ3_model2)
+```
 
 ## Linear Mixed-Models
 Comment: Would need ANOVA to see which model is more significant
 ```{r}
-#summary(lmer(log_duration ~ valency + (1 + valency | word_length)))
-summary(lmer(log_duration ~ valency + (1 + valency | participant)))
-#summary(lmer(log_duration ~ valency + (1 + valency | participant) + (1 | word_length)))
+summary(lmer(dur ~ word_length + log_freq + punctuation + AAPz + I(AAPz^2) + is_stopword + log_freq:(AAPz + I(AAPz^2)) + punctuation:(AAPz + I(AAPz^2))
+             + (1 | token / textnr) + (1 | lang / participant), article))
 ```
