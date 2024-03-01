@@ -314,7 +314,7 @@ RQ1_df <- article %>%
   distinct()
 ```
 
-```{r RQ1} 
+```{r RQ1, eval=FALSE, include=FALSE}
 m1.1 <- lm(median_dur ~ word_length + frequency + punctuation + AAPz + is_stopword, data = RQ1_df)
 m1.2 <- lm(median_dur ~ word_length + log_freq + punctuation + AAPz + is_stopword , data = RQ1_df)
 
@@ -326,9 +326,42 @@ summary(m1.1)
 summary(m1.2)
 summary(m1.3)
 summary(m1.4)
-
-summary(lm(mean_dur ~ word_length + log_freq + punctuation + AAPz + I(AAPz^2) + is_stopword + log_freq:(AAPz + I(AAPz^2)) + punctuation:(AAPz + I(AAPz^2)), data = RQ1_df))
 ```
+
+```{r}
+# remove rows with stopwords
+# RQ1_df <- RQ1_df[RQ1_df$is_stopword != 1, ]
+
+model1 <- lm(median_dur ~ word_length + log_freq + punctuation + AAPz + I(AAPz^2) + is_stopword  + log_freq:(AAPz + I(AAPz^2)) + punctuation:(AAPz + I(AAPz^2)), data = RQ1_df)
+summary(model1)
+```
+
+```{r residuals_plots}
+hist(scale(resid(model1)), main = "Histogram of Standardized Residuals", xlab = "Standardized Residuals")
+plot(density(scale(resid(model1))), main = "Density Plot of Standardized Residuals", xlab = "Standardized Residuals")
+qqnorm(scale(resid(model1)))
+qqline(scale(resid(model1)))
+summary(scale(resid(model1)))
+```
+indicates normal distribution:
+- One standard deviation (threshold = 1): This captures approximately 68% of the data.
+- Two standard deviations (threshold = 2): This captures approximately 95% of the data.
+- Three standard deviations (threshold = 3): This captures approximately 99.7% of the data.
+
+```{r RQ1_without_outliers}
+# remove outliers
+RQ1_new <-RQ1_df[abs(scale(resid(model1)))<1,] #threshhold
+model2 = lm(median_dur ~ word_length + log_freq + punctuation + AAPz + I(AAPz^2) + is_stopword + log_freq:(AAPz + I(AAPz^2)) + punctuation:(AAPz + I(AAPz^2)), data = RQ1_new)
+summary(model2)
+```
+
+```{r}
+qplot(word_length, median_dur, data = RQ1_df)
+
+qplot(AAPz, median_dur, data = RQ1_df)
+qplot(AAPz, median_dur, data = RQ1_new)
+```
+
 
 ### RQ2
 ```{r RQ2_df}
@@ -342,7 +375,14 @@ RQ2_he <- RQ2_df[RQ2_df$lang == 'he',]
 RQ2_fi <- RQ2_df[RQ2_df$lang == 'fi',]
 ```
 
-```{r RQ2}
+```{r RQ2_anova}
+summary(aov(median_lang ~ word_length + log_freq + punctuation + AAPz + I(AAPz^2) + is_stopword + log_freq:(AAPz + I(AAPz^2)) + punctuation:(AAPz + I(AAPz^2)), data = RQ2_ru))
+summary(aov(median_lang ~ word_length + log_freq + punctuation + AAPz + I(AAPz^2) + is_stopword + log_freq:(AAPz + I(AAPz^2)) + punctuation:(AAPz + I(AAPz^2)), data = RQ2_he))
+summary(aov(median_lang ~ word_length + log_freq + punctuation + AAPz + I(AAPz^2) + is_stopword + log_freq:(AAPz + I(AAPz^2)) + punctuation:(AAPz + I(AAPz^2)), data = RQ2_fi))
+```
+
+
+```{r RQ2, eval=FALSE, include=FALSE}
 RQ2.1 <- lm(median_lang ~ word_length + log_freq + punctuation + AAPz + I(AAPz^2) + is_stopword + log_freq:(AAPz + I(AAPz^2)) + punctuation:(AAPz + I(AAPz^2)), data = RQ2_ru)
 RQ2.2 <- lm(median_lang ~ word_length + log_freq + punctuation + AAPz + I(AAPz^2) + is_stopword + log_freq:(AAPz + I(AAPz^2)) + punctuation:(AAPz + I(AAPz^2)), data = RQ2_he)
 RQ2.3 <- lm(median_lang ~ word_length + log_freq + punctuation + AAPz + I(AAPz^2) + is_stopword + log_freq:(AAPz + I(AAPz^2)) + punctuation:(AAPz + I(AAPz^2)), data = RQ2_fi)
@@ -397,23 +437,7 @@ RQ3_df <- article %>%
   group_by(textnr, token, tokenindex) %>%
   select(textnr, tokenindex, token, L1, median_L1L2, mean_L1L2, AAPz, AAPz_cat, anew_score, punctuation, word_length, frequency, log_freq, is_stopword) %>%
   distinct()
-```
 
-```{r RQ3}
-summary(lm(median_L1L2 ~ word_length + frequency + punctuation +
-             L1 + AAPz + AAPz:L1, data = RQ3_df))
-```
-```{r polynomial}
-summary(lm(median_L1L2 ~ word_length + frequency + punctuation +
-             L1 + AAPz + I(AAPz^2), RQ3_df))
-```
-```{r feature_weights}
-RQ3 <- lm(median_L1L2 ~ word_length + frequency + punctuation + AAPz + L1, data = RQ3_df)
-
-drop1(RQ3, test = "F")
-```
-
-```{r RQ3_dfs}
 # Sort by column L1
 RQ3_df <- RQ3_df[order(RQ3_df$L1), ]
 
@@ -422,18 +446,27 @@ L1_RQ3 <- RQ3_df[1:(nrow(RQ3_df) / 2), ]
 L2_RQ3 <- RQ3_df[((nrow(RQ3_df) / 2) + 1):nrow(RQ3_df), ]
 ```
 
-```{r L1_RQ3}
-RQ3_model1 <- lm(mean_L1L2 ~ word_length + log_freq + punctuation + AAPz + I(AAPz^2) + is_stopword + log_freq:(AAPz + I(AAPz^2)) + punctuation:(AAPz + I(AAPz^2)), data = L1_RQ3)
-summary(RQ3_model1)
+```{r RQ3_models}
+#L1
+summary(lm(median_L1L2 ~ word_length + log_freq + punctuation + AAPz + I(AAPz^2) + is_stopword + 
+             log_freq:(AAPz + I(AAPz^2)) + punctuation:(AAPz + I(AAPz^2)), data = L1_RQ3))
+
+#L2
+summary(lm(median_L1L2 ~ word_length + log_freq + punctuation + AAPz + I(AAPz^2) + is_stopword + 
+                   log_freq:(AAPz + I(AAPz^2)) + punctuation:(AAPz + I(AAPz^2)), data = L2_RQ3))
+
+# L1L2 combined
+#summary(lm(median_L1L2 ~ word_length + frequency + punctuation +
+#             L1 + AAPz + AAPz:L1, data = RQ3_df))
 ```
-```{r L2_RQ3}
-RQ3_model2 <- lm(mean_L1L2 ~ word_length + log_freq + punctuation + AAPz + I(AAPz^2) + is_stopword + log_freq:(AAPz + I(AAPz^2))+  log_freq:(AAPz + I(AAPz^2)) + punctuation:(AAPz + I(AAPz^2)), data = L2_RQ3)
-summary(RQ3_model2)
+
+```{r feature_weights}
+#drop1(model, test = "F")
 ```
 
 ## Linear Mixed-Models
 Comment: Would need ANOVA to see which model is more significant
 ```{r}
 summary(lmer(dur ~ word_length + log_freq + punctuation + AAPz + I(AAPz^2) + is_stopword + log_freq:(AAPz + I(AAPz^2)) + punctuation:(AAPz + I(AAPz^2))
-             + (1 | token / textnr) + (1 | lang / participant), article))
+             + (1 | token) + (1 | lang / participant), article))
 ```
