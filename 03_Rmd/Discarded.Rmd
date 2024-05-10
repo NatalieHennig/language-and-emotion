@@ -56,6 +56,21 @@ article %>% group_by(lang) %>%
 
 
 ## Explorations
+```{r baayen_p49}
+native.lm = lm(median_L1L2  ~ AAPz, native)
+nonnative.lm = lm(median_L1L2  ~ AAPz, nonnative)
+
+plot(RQ3_df$AAPz, RQ3_df$median_L1L2, xlab = "AAPz", ylab = "Duration", typ = "n") +
+  #points(native$AAPz, native$median_L1L2, pch = "1", col="darkgrey") +
+  lines(lowess(native$AAPz, native$median_L1L2), col="darkgrey") +
+  abline(coef(native.lm), col= "darkgrey", lty=2) +
+  #points(nonnative$AAPz, nonnative$median_L1L2, pch = "2") +
+  lines(lowess(nonnative$AAPz, nonnative$median_L1L2))  +
+  abline(coef(nonnative.lm), lty=2) 
+
+#summary(native.lm)$coef
+#summary(nonnative.lm)$coef
+```
 
 ## Linear Mixed-Models
 Comment: Would need ANOVA to see which model is more significant
