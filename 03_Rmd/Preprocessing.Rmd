@@ -467,7 +467,7 @@ rm(comp.long, joint_id)
 ```
 
 ## Comprehension
-Calculate accuracy for questions 1-4 (**number**), assuming that they correspond to texts 1-4. *TODO: Verify!!*
+Calculate accuracy for questions 1-4 (**number**), assuming that they correspond to texts 1-4. 
 ```{r calculate_accuracy}
 comprehension <- comprehension_raw %>% select(c("uniform_id", "number", "QUESTIONNUM", "ACCURACY"))
 

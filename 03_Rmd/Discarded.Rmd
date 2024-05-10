@@ -1,0 +1,93 @@
+# Discarded Code
+
+## bigrams
+```{r surprisal, eval=FALSE, include=FALSE}
+bnc_size = 96928173 # total frequencies from the prepared file (bnc whole) without punctuation
+
+article <- article %>% 
+  mutate(
+    word = frequency,
+    previous_word = lag(frequency),
+    conditional_prob = 0,
+    bigram_surprisal = log(1 / (word / bnc_size)) + log(1 / conditional_prob))
+```
+
+## valence
+```{r categorical_valence}
+# Turn into categorical
+positive = 0.1
+negative = -0.1
+
+article <- article %>%
+  mutate(AAPz_cat = case_when(
+    AAPz > positive ~ "Positive",
+    AAPz < negative ~ "Negative",
+    TRUE ~ "Neutral"), .after = AAPz)
+```
+
+```{r}
+article %>%
+    group_by(AAPz_cat, lang) %>%
+    summarise(val = median(dur), .groups = "drop") %>% 
+  pivot_wider(names_from = AAPz_cat, values_from = val)
+```
+
+```{r}
+article %>%
+    group_by(AAPz_cat, lang) %>%
+    summarise(val = median(dur), .groups = "drop") %>%
+  ggplot(aes(x = AAPz_cat, y = val, color = lang, group = lang)) +
+  geom_point() +
+  geom_line() +
+  #facet_wrap(~lang) +
+  labs(x = "Valency", y = "Median Duration", color = "Language") +
+  theme_minimal()
+```
+**Important:** This doesn't say much about the reading times with respect to valence because other variables (such as word length) need to be considered as well.
+
+### Language Group
+#### Duration 
+```{r mean_lang}
+article %>% group_by(lang) %>% 
+  summarize(mean_duration = round(mean(dur)), 
+            median_duration = median(dur), 
+            standard_deviation = round(sd(dur)))
+```
+
+
+## Explorations
+
+## Linear Mixed-Models
+Comment: Would need ANOVA to see which model is more significant
+```{r}
+summary(lmer(dur ~ word_length + log_freq + punctuation + AAPz + I(AAPz^2) + is_stopword + log_freq:(AAPz + I(AAPz^2)) + punctuation:(AAPz + I(AAPz^2))
+             + (1 | token) + (1 | lang / participant), article))
+```
+
+### Categorical Valency
+```{r categorical}
+article$AAPz_cat <- factor(article$AAPz_cat)
+article$AAPz_cat <- relevel(article$AAPz_cat, ref = "Neutral")
+
+#summary(lm())) 
+```
+
+### Participant-level variables
+```{r median_participants, eval=FALSE, include=FALSE}
+median_part <- article %>% group_by(lang, textnr, tokenindex, token) %>% 
+  reframe(median_lang, word_length, frequency, punctuation, AAPz, 
+          mean_exposure = round(mean(exposure_EN)), 
+          mean_cft = round(mean(cft20)), 
+          mean_lextale = round(mean(lextale)), 
+          mean_motiv = round(mean(motiv)), 
+          mean_start = round(mean(start_learning))) %>%
+  distinct()
+```
+- Do the variables *exposure_EN + cft20 + lextale + motiv + start_learning* need to be medians between language groups?
+- - Doesn't make much sense to include them then.
+- why is *ee* mean_start *NA*? There are some missing values, these participants will be excluded.
+
+### Feature Weights
+```{r feature_weights}
+#drop1(model, test = "F")
+```
