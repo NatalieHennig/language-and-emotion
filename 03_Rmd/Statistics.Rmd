@@ -296,7 +296,10 @@ qplot(word_length, median_dur, data = RQ1_df)
 qplot(AAPz, median_dur, data = RQ1_df)
 qplot(AAPz, median_dur, data = RQ1_df[RQ1_df$is_stopword != 1, ])
 qplot(AAPz, median_dur, data = RQ1_df[abs(scale(resid(model1.1)))<2,])
+
+pairs(RQ1_df[,c("median_dur","AAPz","word_length","log_freq")],pch=".")
 ```
+
 
 ### RQ2
 ```{r RQ2_df}
